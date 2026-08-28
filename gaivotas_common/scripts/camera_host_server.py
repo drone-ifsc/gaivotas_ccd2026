@@ -297,7 +297,7 @@ def main():
     width        = rospy.get_param("~width",  820)
     height       = rospy.get_param("~height", 616)
     framerate    = rospy.get_param("~framerate", 10)
-    quality      = rospy.get_param("~quality", 20)
+    quality      = rospy.get_param("~quality", 80)
     undistort    = rospy.get_param("~undistort",  True)
     default_calib = os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera_correction/imx219_3280x2464/ost.yaml")
     calib_file   = rospy.get_param("~calib_file", default_calib)
