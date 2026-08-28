@@ -11,7 +11,7 @@
 
         <include file="$(find mavros)/launch/node.launch">
                 <arg name="pluginlists_yaml" value="$(find mavros)/launch/apm_pluginlists.yaml" />
-                <arg name="config_yaml" value="$(find a6_gaivotas_ccd2026)/launch/apm_config.yaml" />
+                <arg name="config_yaml" value="$(find a11_gaivotas_ccd2026)/launch/apm_config.yaml" />
 
                 <arg name="fcu_url" value="$(arg fcu_url)" />
                 <arg name="gcs_url" value="$(arg gcs_url)" />
@@ -30,13 +30,15 @@
     <arg name="aruco_dictionary"   default="0"/>      <!-- id do dicionário ArUco (ver wiki aruco_detect) -->
     <arg name="aruco_fiducial_len" default="0.10"/>   <!-- lado do marcador, em metros -->
     <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect" output="screen" required="true">
-        <param name="image_transport"    value="raw"/>
+        <param name="image_transport"    value="compressed"/>
         <param name="publish_images"     value="true"/>       <!-- publica a imagem anotada -->
         <param name="do_pose_estimation" value="true"/>
         <param name="dictionary"         value="$(arg aruco_dictionary)"/>
+        <param name="camera" default="/camera"/>
+        <param name="image" default="image_raw"/>
+
         <param name="fiducial_len"       value="$(arg aruco_fiducial_len)"/>
-        <remap from="camera"      to="/camera/image_raw"/>
-        <remap from="camera_info" to="/camera/camera_info"/>
+
         <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
     </node> 
    
