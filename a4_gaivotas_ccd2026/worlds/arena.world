@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <world name="arena_FRL">
+    
+    
+    <!-- Adiciona o chão -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <!-- Luz ambiente -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Base de Takeoff -->
+    <include>
+      <uri>model://base_takeoff</uri>
+      <pose>-0.75 1 0 0 0 1.57</pose>
+    </include>
+
+
+    <!-- Base de Pouso Altura 1m -->
+    <include>
+      <uri>model://base_pouso_alt1</uri>
+      <pose>-3.5 1 0 0 0 0</pose>
+    </include>
+
+    <!-- Base de Pouso Altura 1.5m -->
+    <include>
+      <uri>model://base_pouso_alt15</uri>
+      <pose>-1 7 0 0 0 0</pose>
+    </include>
+
+
+    <!-- Base de Pouso -->
+    <model name="base1">
+      <include> 
+        <uri>model://base_pouso</uri>
+        <pose>-4 4 0 0 0 0</pose>
+      </include> 
+    </model>
+
+    <!-- Base de Pouso -->
+    <model name="base2">
+      <include> 
+        <uri>model://base_pouso</uri>
+        <pose>-6 2 0 0 0 0</pose>
+      </include> 
+    </model>
+
+    <!-- Base de Pouso -->
+    <model name="base3">
+      <include>
+        <uri>model://base_pouso</uri>
+        <pose>-6 6 0 0 0 0</pose>
+      </include>
+    </model>
+
+    <!-- Iris UAV -->
+    <model name="droneIFSC">
+      <include>
+        <uri>model://droneIFSC</uri>  
+      </include>
+      <pose>-0.75 1 0.5 0 0 1.5708</pose>  
+    </model>
+
+  </world>
+</sdf>
+
+ 

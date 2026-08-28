@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>gaivotas_common</name>
+  <version>0.0.1</version>
+  <description>
+    Nós compartilhados pelas missões gaivotas CCD2026 (a2/a4/a6/a11):
+    base_reader, camera_host_server, landing_target_sender e o helper rostopic_2_cv.
+    As missões chamam estes nós via pkg="gaivotas_common" e passam os parâmetros
+    (modelo, tópicos) por launch.
+  </description>
+  <maintainer email="iaroslav.p@aluno.ifsc.edu.br">Iaroslav</maintainer>
+  <license>bsd</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Deps de runtime dos nós Python -->
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>mavros</exec_depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+
+  <!-- Visão só via pip (não existe no rosdep), conforme o backend do base_reader:
+         ~backend:=yolo         -> pip install ultralytics   (ncnn já vem junto)
+         ~backend:=mobilenetv2  -> pip install tflite-runtime (edge/RPi)  ou  tensorflow -->
+
+  <export>
+  </export>
+</package>

@@ -1,0 +1,17 @@
+# segredos / ambiente
+.env
+*.token
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+
+# catkin
+build/
+devel/
+logs/
+install/
+
+# pesos treináveis (modelos ncnn/tflite versionados ficam no submódulo ai_models)
+*.pt
