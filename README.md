@@ -1,26 +1,28 @@
 # gaivotas_ccd2026
 
-Monorepo das missões da competição CCD (equipe gaivotas).
-Cada missão é um pacote catkin; os nós compartilhados vivem em `gaivotas_common`.
+Monorepo for the **gaivotas** team's drone missions in the CCD competition.
+Each mission is a catkin package; the nodes shared across missions live in
+`gaivotas_common`.
 
 ```
 gaivotas_ccd2026/
-├── gaivotas_common/        nós compartilhados + submódulo ai_models
+├── gaivotas_common/        shared nodes + ai_models submodule
 │   └── scripts/
-│       ├── base_reader.py             (detecção da base de pouso — yolo/mobilenetv2)
-│       ├── camera_host_server.py      (servidor de câmera no drone)
-│       ├── landing_target_sender.py   (envia landing target ao MAVROS)
-│       ├── rostopic_2_cv.py           (helper ROS Image -> OpenCV)
-│       └── ai_models/                 (submódulo -> drone-ifsc/ai_models)
-├── a2_gaivotas_ccd2026/    missão A2
-├── a4_gaivotas_ccd2026/    missão A4 (com srv ServoSequence)
-├── a6_gaivotas_ccd2026/    missão A6
-└── a11_gaivotas_ccd2026/   missão A11
+│       ├── base_reader.py             (landing-base detection — yolo / mobilenetv2)
+│       ├── camera_host_server.py      (on-drone camera server)
+│       ├── landing_target_sender.py   (sends the landing target to MAVROS)
+│       ├── rostopic_2_cv.py           (ROS Image -> OpenCV helper)
+│       └── ai_models/                 (submodule -> drone-ifsc/ai_models)
+├── a2_gaivotas_ccd2026/    mission A2
+├── a4_gaivotas_ccd2026/    mission A4 (with the ServoSequence srv)
+├── a6_gaivotas_ccd2026/    mission A6
+└── a11_gaivotas_ccd2026/   mission A11
 ```
 
-As missões usam os nós comuns por `pkg="gaivotas_common"` nos seus launch files e
-passam os parâmetros (modelo, tópicos) por launch. O `camera_host_server.py` roda no
-drone e é iniciado à parte: `rosrun gaivotas_common camera_host_server.py`.
+Missions call the shared nodes with `pkg="gaivotas_common"` in their launch files and
+pass the mission-specific parameters (model, topics) through the launch. The
+`camera_host_server.py` runs on the drone and is started separately:
+`rosrun gaivotas_common camera_host_server.py`.
 
 ## Bootstrap
 
@@ -28,8 +30,10 @@ drone e é iniciado à parte: `rosrun gaivotas_common camera_host_server.py`.
 cd ~/catkin_ws/src
 git clone --recurse-submodules git@github.com:drone-ifsc/gaivotas_ccd2026.git
 cd ~/catkin_ws && catkin build
-# ou:  git clone … && git submodule update --init --recursive
+# or:  git clone … && git submodule update --init --recursive
 ```
 
-Modelos (ai_models) são um submódulo compartilhado por todas as missões — um único
-`git submodule update` traz os pesos para todas.
+The models (`ai_models`) are a single submodule shared by every mission — one
+`git submodule update` pulls the weights for all of them. Its URL is relative
+(`../ai_models.git`), so it follows the protocol you cloned the superproject with
+(SSH clone → SSH submodule), which matters on the SSH-only drone.
