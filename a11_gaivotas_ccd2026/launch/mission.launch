@@ -35,7 +35,7 @@
         <param name="do_pose_estimation" value="true"/>
         <param name="dictionary"         value="$(arg aruco_dictionary)"/>
         <param name="fiducial_len"       value="$(arg aruco_fiducial_len)"/>
-        <remap from="camera/compressed"      to="/camera/image_raw"/>
+        <remap from="camera/compressed"      to="/camera/image_raw/compressed"/>
         <remap from="camera_info" to="/camera/camera_info"/>
         <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
     </node> 

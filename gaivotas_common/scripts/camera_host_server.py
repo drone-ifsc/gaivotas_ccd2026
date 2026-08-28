@@ -294,10 +294,10 @@ def main():
     # mesmo aspecto, sem distorcao). Para menor ainda: ~width/~height (mantenha
     # ~1.331 de aspecto). NAO ponha 640:480 em ~sensor_mode: isso recorta o centro.
     sensor_mode  = str(rospy.get_param("~sensor_mode", "1640:1232"))
-    width        = rospy.get_param("~width",  820)
-    height       = rospy.get_param("~height", 616)
-    framerate    = rospy.get_param("~framerate", 10)
-    quality      = rospy.get_param("~quality", 80)
+    width        = rospy.get_param("~width",  1640)
+    height       = rospy.get_param("~height", 1232)
+    framerate    = rospy.get_param("~framerate", 5)
+    quality      = rospy.get_param("~quality", 70)
     undistort    = rospy.get_param("~undistort",  True)
     default_calib = os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera_correction/imx219_3280x2464/ost.yaml")
     calib_file   = rospy.get_param("~calib_file", default_calib)
