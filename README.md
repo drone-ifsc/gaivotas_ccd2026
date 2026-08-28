@@ -1,6 +1,6 @@
 # gaivotas_ccd2026
 
-Monorepo das missões **gaivotas** da competição CCD (equipe IFSC Florianópolis).
+Monorepo das missões da competição CCD (equipe gaivotas).
 Cada missão é um pacote catkin; os nós compartilhados vivem em `gaivotas_common`.
 
 ```
