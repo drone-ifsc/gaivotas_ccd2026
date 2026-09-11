@@ -26,19 +26,24 @@
          sua taxa e controlada pelo no landing_target_sender (~rate).
          bash equivalente: rosrun mavros mavsys rate (два минуса)raw-sensors 20 -->
     
-    <!-- Detecção de ArUco (fiducials/aruco_detect); imagem anotada de saída em /fiducial_images -->
-    <arg name="aruco_dictionary"   default="0"/>      <!-- id do dicionário ArUco (ver wiki aruco_detect) -->
-    <arg name="aruco_fiducial_len" default="0.10"/>   <!-- lado do marcador, em metros -->
-    <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect" output="screen" required="true">
-        <param name="image_transport"    value="compressed"/>
-        <param name="publish_images"     value="true"/>       <!-- publica a imagem anotada -->
-        <param name="do_pose_estimation" value="true"/>
-        <param name="dictionary"         value="$(arg aruco_dictionary)"/>
-        <param name="fiducial_len"       value="$(arg aruco_fiducial_len)"/>
-        <remap from="camera/compressed"      to="/camera/image_raw/compressed"/>
-        <remap from="camera_info" to="/camera/camera_info"/>
-        <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
-    </node> 
+        <!-- Detecção de ArUco (fiducials/aruco_detect); imagem anotada de saída em /fiducial_images -->
+        <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect" output="screen" required="true">
+                <param name="image_transport"     value="compressed"/>
+                <param name="publish_images"      value="true"/>       <!-- publica a imagem anotada -->
+                <param name="do_pose_estimation"  value="true"/>
+                <param name="dictionary"          value="0"/>
+                <param name="fiducial_len"        value="0.10"/>
+                <param name="errorCorrectionRate"           value="1"/>
+                <param name="maxErroneousBitsInBorderRate"  value="0.35"/>
+                <param name="minMarkerPerimeterRate"        value="0.01"/>
+                <param name="polygonalApproxAccuracyRate"   value="0.15"/>
+                <param name="perspectiveRemovePixelPerCell" value="18"/>
+                <param name="minOtsuStdDev"                 value="3.0"/>
+                <param name="cornerRefinementMaxIterations" value="30"/>
+                <remap from="camera/compressed"      to="/camera/image_raw/compressed"/>
+                <remap from="camera_info" to="/camera/camera_info"/>
+                <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
+        </node> 
    
       
     <node pkg="mavros" type="mavsys" name="mavsys_rate_raw_sensors"

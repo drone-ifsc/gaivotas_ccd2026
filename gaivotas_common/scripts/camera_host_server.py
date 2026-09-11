@@ -31,7 +31,7 @@ Parametros (via rosparam):
     ~height         int  — altura de SAIDA                       (default 616)
     ~framerate      int  — fps                                   (default 20)
     ~quality        int  — qualidade JPEG 1-100             (default 20)
-    ~undistort      bool — corrigir distorcao de lente      (default False)
+    ~undistort      bool — corrigir distorcao de lente      (default True)
     ~calib_file     str  — caminho para ost.yaml            (default: ost.yaml ao lado do script)
     ~publish_camera_info bool — publicar CameraInfo em /camera/camera_info (default True)
     ~frame_id       str  — frame_id de Image/CameraInfo     (default "camera")
