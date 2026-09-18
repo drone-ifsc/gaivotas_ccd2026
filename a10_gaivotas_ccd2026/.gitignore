@@ -15,3 +15,10 @@ dataset/
 # YOLO/ML weights (large) and local inference venv
 *.pt
 yolo-venv/
+
+
+# rosbags gravados pelo mission.launch
+rosbags/
+*.bag
+*.bag.active
+

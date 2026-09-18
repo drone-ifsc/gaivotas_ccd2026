@@ -1,0 +1,51 @@
+<launch>
+    <!-- Pós-análise de voo: reproduz um .bag gravado (rosbags/) no rqt_bag, com botões
+         play/pause/stop, e roda zbar + aruco_detect sobre as imagens gravadas.
+         IMPORTANTE: no rqt_bag, botão direito na lista de tópicos -> Publish -> Publish All;
+         sem isso o rqt_bag só mostra o bag e nada chega aos nós abaixo. -->
+    <arg name="bag_dir"     default="$(find a10_gaivotas_ccd2026)/rosbags"/>
+    <arg name="bag"         default=""/>   <!-- nome do arquivo em bag_dir; vazio = o mais recente -->
+    <arg name="image_topic" default="/camera/image_decompressed"/>   <!-- troque no dropdown, ex. /fiducial_images -->
+
+   <!-- <param name="use_sim_time" value="true"/> -->  <!-- tempo vem do /clock publicado pelo rqt_bag -->
+
+    <!-- Player com botões (rqt_bag). bag vazio -> abre o .bag mais recente de bag_dir -->
+    <node if="$(eval arg('bag') == '')" pkg="rqt_bag" type="rqt_bag" name="rqt_bag" output="screen"
+          args="--clock"
+          launch-prefix="bash -c 'exec $0 $@ `ls -t $(arg bag_dir)/*.bag 2>/dev/null | head -1`' "/>
+    <node unless="$(eval arg('bag') == '')" pkg="rqt_bag" type="rqt_bag" name="rqt_bag" output="screen"
+          args="--clock $(arg bag_dir)/$(arg bag)"/>
+
+    <!-- O bag só tem a câmera compressed; o zbar precisa de raw. Descomprime para um tópico
+         próprio: saída em /camera/image_raw duplicaria publicadores em .../compressed. -->
+
+<!--    <node pkg="image_transport" type="republish" name="decompress"
+          args="compressed in:=/camera/image_raw raw out:=/camera/image_decompressed"/>
+-->
+    <node pkg="zbar_ros" type="barcode_reader_node" name="zbar"
+    output="screen" launch-prefix="bash -c 'sleep 4.0; $0 $@' ">
+        <remap from="image" to="/camera/image_decompressed"/>
+    </node>
+
+            <!-- Detecção de ArUco (fiducials/aruco_detect); imagem anotada de saída em /fiducial_images -->
+        <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect" output="screen" required="true">
+                <param name="image_transport"     value="compressed"/>
+                <param name="publish_images"      value="true"/>       <!-- publica a imagem anotada -->
+                <param name="do_pose_estimation"  value="true"/>
+                <param name="dictionary"          value="0"/>
+                <param name="fiducial_len"        value="0.10"/>
+                <param name="errorCorrectionRate"           value="1"/>
+                <param name="maxErroneousBitsInBorderRate"  value="0.35"/>
+                <param name="minMarkerPerimeterRate"        value="0.01"/>
+                <param name="polygonalApproxAccuracyRate"   value="0.15"/>
+                <param name="perspectiveRemovePixelPerCell" value="18"/>
+                <param name="minOtsuStdDev"                 value="3.0"/>
+                <param name="cornerRefinementMaxIterations" value="30"/>
+                <remap from="camera/compressed"      to="/camera/image_raw/compressed"/>
+                <remap from="camera_info" to="/camera/camera_info"/>
+                <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
+        </node>
+
+    <!-- Visualização da imagem (o tópico pode ser trocado no dropdown da janela) -->
+    <node pkg="rqt_image_view" type="rqt_image_view" name="image_view" args="$(arg image_topic)"/>
+</launch>

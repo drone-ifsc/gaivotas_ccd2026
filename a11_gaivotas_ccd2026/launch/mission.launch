@@ -21,33 +21,8 @@
                 <arg name="fcu_protocol" value="$(arg fcu_protocol)" />
                 <arg name="respawn_mavros" value="$(arg respawn_mavros)" />
         </include>
-    <!-- Acelerômetro/IMU estão no grupo RAW_SENSORS (RAW_IMU, SCALED_IMU2/3, SCALED_PRESSURE).
-         LANDING_TARGET nao tem grupo: o FCU so o recebe (companion->FCU), nao o transmite;
-         sua taxa e controlada pelo no landing_target_sender (~rate).
-         bash equivalente: rosrun mavros mavsys rate (два минуса)raw-sensors 20 -->
-    
-        <!-- Detecção de ArUco (fiducials/aruco_detect); imagem anotada de saída em /fiducial_images -->
-        <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect" output="screen" required="true">
-                <param name="image_transport"     value="compressed"/>
-                <param name="publish_images"      value="true"/>       <!-- publica a imagem anotada -->
-                <param name="do_pose_estimation"  value="true"/>
-                <param name="dictionary"          value="0"/>
-                <param name="fiducial_len"        value="0.10"/>
-                <param name="errorCorrectionRate"           value="1"/>
-                <param name="maxErroneousBitsInBorderRate"  value="0.35"/>
-                <param name="minMarkerPerimeterRate"        value="0.01"/>
-                <param name="polygonalApproxAccuracyRate"   value="0.15"/>
-                <param name="perspectiveRemovePixelPerCell" value="18"/>
-                <param name="minOtsuStdDev"                 value="3.0"/>
-                <param name="cornerRefinementMaxIterations" value="30"/>
-                <remap from="camera/compressed"      to="/camera/image_raw/compressed"/>
-                <remap from="camera_info" to="/camera/camera_info"/>
-                <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
-        </node> 
-   
       
     <node pkg="mavros" type="mavsys" name="mavsys_rate_raw_sensors"
     args="rate --raw-sensors 20" output="screen" launch-prefix="bash -c 'sleep 4.0; $0 $@' " /> 
     
-
 </launch>
