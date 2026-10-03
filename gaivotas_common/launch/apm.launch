@@ -1,15 +1,16 @@
 <launch>
     <!-- MAVROS para ArduPilot (APM) — comum a todas as missões gaivotas.
-         Uso numa missão:
+         Uso numa missão (os parâmetros ficam só aqui):
            <include file="$(find gaivotas_common)/launch/apm.launch">
-               <arg name="tgt_system" value="105"/>
            </include>
-         Exemplos de fcu_url:
+         fcu_url = udp://[endereço LOCAL onde o mavros escuta]@[endereço da FCU]
+           udp://192.168.144.10:14550@192.168.144.14   FCU por Ethernet (NET_P1 = UDP Client):
+                       escuta só na interface 192.168.144.10; a porta de origem da FCU é
+                       efêmera, o mavros a aprende do primeiro pacote
            udp://127.0.0.1:14551@   MAVProxy local repassando a FCU
-           udp://:14550@            FCU direto por Ethernet (NET_P1 = UDP Client)
            /dev/ttyAMA0:230400      serial -->
     <arg name="ros_ip"           default="$(optenv ROS_IP 127.0.0.1)"/>
-    <arg name="fcu_url"          default="udp://192.168.144.14:14550@" />
+    <arg name="fcu_url"          default="udp://192.168.144.10:14550@192.168.144.14" />
     <arg name="gcs_url"          default="udp://$(arg ros_ip):14445@" />
     <arg name="tgt_system"       default="105" />
     <arg name="tgt_component"    default="1" />
