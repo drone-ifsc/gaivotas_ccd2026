@@ -13,5 +13,6 @@ devel/
 logs/
 install/
 
-# pesos treináveis (modelos ncnn/tflite versionados ficam no submódulo ai_models)
-*.pt
+*.bag
+*.mp4
+*.avi
