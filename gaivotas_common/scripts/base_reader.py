@@ -9,13 +9,24 @@ from sensor_msgs.msg import Image, CompressedImage
 from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
 
-from rostopic_2_cv import *
 # NB: ultralytics (YOLO) e tflite-runtime sao importados sob demanda em main(),
 # conforme o backend escolhido — assim o dispositivo so precisa da dep que usa.
 
 # foco_px * distancia_real_entre_keypoints [px*m]. Calibrar: a uma altura Z conhecida,
 # ALT_SCALE = Z * d_px medido. Sem isso, dist_2_alt nao esta em metros.
 ALT_SCALE = 230 #250
+
+class WebcamNode:
+    def __init__(self):
+        self.bridge = CvBridge()
+        self.cv_image = None
+        rospy.Subscriber("/camera/image_raw", Image, self.callback)
+
+    def callback(self, msg):
+        try:
+            self.cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
+        except Exception as e:
+            rospy.logerr("Erro na conversão: %s", e)
 
 def dist_2_pts(x1, y1, x2, y2):
 	return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)

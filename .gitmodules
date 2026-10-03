@@ -1,3 +1,3 @@
-[submodule "gaivotas_common/scripts/ai_models"]
+[submodule "ai_models"]
 	path = gaivotas_common/scripts/ai_models
-	url = ../ai_models.git
+	url = git@github.com:drone-ifsc/ai_models.git
