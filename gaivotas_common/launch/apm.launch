@@ -1,0 +1,33 @@
+<launch>
+    <!-- MAVROS para ArduPilot (APM) — comum a todas as missões gaivotas.
+         Uso numa missão:
+           <include file="$(find gaivotas_common)/launch/apm.launch">
+               <arg name="tgt_system" value="105"/>
+           </include>
+         Exemplos de fcu_url:
+           udp://127.0.0.1:14551@   MAVProxy local repassando a FCU
+           udp://:14550@            FCU direto por Ethernet (NET_P1 = UDP Client)
+           /dev/ttyAMA0:230400      serial -->
+    <arg name="ros_ip"           default="$(optenv ROS_IP 127.0.0.1)"/>
+    <arg name="fcu_url"          default="udp://192.168.144.14:14550@" />
+    <arg name="gcs_url"          default="udp://$(arg ros_ip):14445@" />
+    <arg name="tgt_system"       default="105" />
+    <arg name="tgt_component"    default="1" />
+    <arg name="log_output"       default="screen" />
+    <arg name="fcu_protocol"     default="v2.0" />
+    <arg name="respawn_mavros"   default="true" />
+    <arg name="pluginlists_yaml" default="$(find mavros)/launch/apm_pluginlists.yaml" />
+    <arg name="config_yaml"      default="$(find gaivotas_common)/launch/apm_config.yaml" />
+
+    <include file="$(find mavros)/launch/node.launch">
+        <arg name="pluginlists_yaml" value="$(arg pluginlists_yaml)" />
+        <arg name="config_yaml"      value="$(arg config_yaml)" />
+        <arg name="fcu_url"          value="$(arg fcu_url)" />
+        <arg name="gcs_url"          value="$(arg gcs_url)" />
+        <arg name="tgt_system"       value="$(arg tgt_system)" />
+        <arg name="tgt_component"    value="$(arg tgt_component)" />
+        <arg name="log_output"       value="$(arg log_output)" />
+        <arg name="fcu_protocol"     value="$(arg fcu_protocol)" />
+        <arg name="respawn_mavros"   value="$(arg respawn_mavros)" />
+    </include>
+</launch>

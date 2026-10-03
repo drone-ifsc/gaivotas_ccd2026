@@ -6,16 +6,20 @@ Each mission is a catkin package; the nodes shared across missions live in
 
 ```
 gaivotas_ccd2026/
-├── gaivotas_common/        shared nodes + ai_models submodule
+├── gaivotas_common/        shared nodes, MAVROS launch, submodules
+│   ├── launch/
+│   │   ├── apm.launch                 (MAVROS for ArduPilot — included by every mission)
+│   │   └── apm_config.yaml            (MAVROS config shared by the missions)
 │   └── scripts/
 │       ├── base_reader.py             (landing-base detection — yolo / mobilenetv2)
 │       ├── camera_host_server.py      (on-drone camera server)
 │       ├── landing_target_sender.py   (sends the landing target to MAVROS)
-│       ├── rostopic_2_cv.py           (ROS Image -> OpenCV helper)
-│       └── ai_models/                 (submodule -> drone-ifsc/ai_models)
+│       ├── ai_models/                 (submodule -> drone-ifsc/ai_models)
+│       └── camera_correction/         (submodule -> drone-ifsc/camera_correction)
 ├── a2_gaivotas_ccd2026/    mission A2
 ├── a4_gaivotas_ccd2026/    mission A4 (with the ServoSequence srv)
 ├── a6_gaivotas_ccd2026/    mission A6
+├── a10_gaivotas_ccd2026/   mission A10
 └── a11_gaivotas_ccd2026/   mission A11
 ```
 
@@ -23,6 +27,15 @@ Missions call the shared nodes with `pkg="gaivotas_common"` in their launch file
 pass the mission-specific parameters (model, topics) through the launch. The
 `camera_host_server.py` runs on the drone and is started separately:
 `rosrun gaivotas_common camera_host_server.py`.
+
+MAVROS is started by each mission through the shared launch, overriding only what differs:
+
+```xml
+<include file="$(find gaivotas_common)/launch/apm.launch">
+    <arg name="fcu_url"    value="$(arg fcu_url)" />
+    <arg name="tgt_system" value="$(arg tgt_system)" />
+</include>
+```
 
 ## Bootstrap
 

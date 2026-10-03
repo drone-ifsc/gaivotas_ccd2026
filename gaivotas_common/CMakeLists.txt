@@ -11,6 +11,8 @@ catkin_install_python(PROGRAMS
   scripts/base_reader.py
   scripts/camera_host_server.py
   scripts/landing_target_sender.py
-  scripts/rostopic_2_cv.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+# Launch comum (apm.launch) e configuração do MAVROS
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
