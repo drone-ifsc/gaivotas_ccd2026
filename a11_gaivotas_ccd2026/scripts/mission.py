@@ -291,12 +291,13 @@ class DroneMission:
         
     def _on_statustext(self, msg):
         # ArduPilot emite STATUSTEXT "PrecLand: Target Found" quando o alvo e adquirido.
+        rospy.loginfo("STATUSTEXT: %s", msg.text)
         text = msg.text.lower()
 
         # Info: PrecLand: Target Found
         # Info: PrecLand: Init Complete
         
-        if 'PrecLand' in text and 'Complete' in text:
+        if 'precland' in text and 'complete' in text:
             self._precland_event.set()
 
     def wait_precland_ready(self, timeout=5.0):
