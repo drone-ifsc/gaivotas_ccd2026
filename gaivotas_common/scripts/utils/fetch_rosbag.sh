@@ -15,6 +15,8 @@
 #   fetch_rosbag.sh catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags
 #   fetch_rosbag.sh /home/falcon/voo.bag ~/bags
 #   fetch_rosbag.sh root@10.0.0.5:/data/a11_2026-10-09-11-30-00.bag
+#   ./fetch_rosbag.sh /home/falcon/catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags ~/catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags
+
 set -euo pipefail
 
 DRONE_HOST="${DRONE_HOST:-falcon@192.168.0.105}"

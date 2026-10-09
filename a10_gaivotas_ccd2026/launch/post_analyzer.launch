@@ -1,30 +1,23 @@
 <launch>
     <!-- Pós-análise de voo: reproduz um .bag gravado (rosbags/) no rqt_bag, com botões
-         play/pause/stop, e roda zbar + aruco_detect sobre as imagens gravadas.
-         IMPORTANTE: no rqt_bag, botão direito na lista de tópicos -> Publish -> Publish All;
-         sem isso o rqt_bag só mostra o bag e nada chega aos nós abaixo. -->
+         play/pause, e roda aruco_detect + zbar sobre as imagens gravadas.
+         O Play já publica todos os tópicos do bag (rqt_bag_autopublish.py); não é preciso
+         o Publish -> Publish All do rqt_bag padrão. -->
     <arg name="bag_dir"     default="$(find a10_gaivotas_ccd2026)/rosbags"/>
     <arg name="bag"         default=""/>   <!-- nome do arquivo em bag_dir; vazio = o mais recente -->
-    <arg name="image_topic" default="/camera/image_decompressed"/>   <!-- troque no dropdown, ex. /fiducial_images -->
+    <arg name="image_topic" default="/fiducial_images"/>   <!-- imagem anotada pelo aruco_detect; troque no dropdown -->
 
    <!-- <param name="use_sim_time" value="true"/> -->  <!-- tempo vem do /clock publicado pelo rqt_bag -->
 
     <!-- Player com botões (rqt_bag). bag vazio -> abre o .bag mais recente de bag_dir -->
-    <node if="$(eval arg('bag') == '')" pkg="rqt_bag" type="rqt_bag" name="rqt_bag" output="screen"
-          args="--clock"
-          launch-prefix="bash -c 'exec $0 $@ `ls -t $(arg bag_dir)/*.bag 2>/dev/null | head -1`' "/>
-    <node unless="$(eval arg('bag') == '')" pkg="rqt_bag" type="rqt_bag" name="rqt_bag" output="screen"
+    <node pkg="gaivotas_common" type="rqt_bag_autopublish.py" name="rqt_bag" output="screen"
           args="--clock $(arg bag_dir)/$(arg bag)"/>
 
-    <!-- O bag só tem a câmera compressed; o zbar precisa de raw. Descomprime para um tópico
-         próprio: saída em /camera/image_raw duplicaria publicadores em .../compressed. -->
-
-<!--    <node pkg="image_transport" type="republish" name="decompress"
-          args="compressed in:=/camera/image_raw raw out:=/camera/image_decompressed"/>
--->
+    <!-- O bag só tem a câmera compressed e o zbar só lê raw: ele usa a imagem que o
+         aruco_detect já descomprime e republica (/fiducial_images). -->
     <node pkg="zbar_ros" type="barcode_reader_node" name="zbar"
     output="screen" launch-prefix="bash -c 'sleep 4.0; $0 $@' ">
-        <remap from="image" to="/camera/image_decompressed"/>
+        <remap from="image" to="/fiducial_images"/>
     </node>
 
             <!-- Detecção de ArUco (fiducials/aruco_detect); imagem anotada de saída em /fiducial_images -->

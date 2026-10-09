@@ -11,6 +11,7 @@ catkin_install_python(PROGRAMS
   scripts/base_reader.py
   scripts/camera_host_server.py
   scripts/landing_target_sender.py
+  scripts/rqt_bag_autopublish.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
