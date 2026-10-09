@@ -16,7 +16,6 @@
     <arg name="bag_topics" default="/mavros/state /mavros/local_position/pose
                                     /mavros/setpoint_position/local /mavros/setpoint_raw/local
                                     /mavros/statustext/recv
-                                    /camera/image_raw/ 
                                     /camera/image_raw/compressed /camera/camera_info"/>
     <node pkg="rosbag" type="record" name="rosbag_record" output="screen" if="$(arg record)"
           args="-o $(arg bag_dir)/a11 $(arg bag_topics)"
