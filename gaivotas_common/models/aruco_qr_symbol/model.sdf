@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="aruco_qr">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <pose>0 0 0.05 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.05 0.842 0.842</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual_cube">
+        <pose>0 0 0.05 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.1 0.842 0.842</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.8 0.8 0.8 1</ambient>
+          <diffuse>0.8 0.8 0.8 1</diffuse>
+        </material>
+      </visual>
+
+      <visual name="visual_front">
+        <pose>0.0501 0 0.05 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>0.001 0.842 0.842</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://aruco_qr_symbol/materials/scripts</uri>
+            <uri>model://aruco_qr_symbol/materials/textures</uri>
+            <name>Aruco_QR/Image</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

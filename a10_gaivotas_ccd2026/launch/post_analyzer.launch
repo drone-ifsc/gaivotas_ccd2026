@@ -5,13 +5,12 @@
          o Publish -> Publish All do rqt_bag padrão. -->
     <arg name="bag_dir"     default="$(find a10_gaivotas_ccd2026)/rosbags"/>
     <arg name="bag"         default=""/>   <!-- nome do arquivo em bag_dir; vazio = o mais recente -->
-    <arg name="image_topic" default="/fiducial_images"/>   <!-- imagem anotada pelo aruco_detect; troque no dropdown -->
+    <arg name="image_topic" default="/detection_overlay/image"/>   <!-- IDs e textos em letra grande; troque no dropdown -->
 
    <!-- <param name="use_sim_time" value="true"/> -->  <!-- tempo vem do /clock publicado pelo rqt_bag -->
 
     <!-- Player com botões (rqt_bag). bag vazio -> abre o .bag mais recente de bag_dir -->
-    <node pkg="gaivotas_common" type="rqt_bag_autopublish.py" name="rqt_bag" output="screen"
-          args="--clock $(arg bag_dir)/$(arg bag)"/>
+    <node pkg="gaivotas_common" type="rqt_bag_autopublish.py" name="rqt_bag" output="screen" args="--clock $(arg bag_dir)/$(arg bag)"/> 
 
     <!-- O bag só tem a câmera compressed e o zbar só lê raw: ele usa a imagem que o
          aruco_detect já descomprime e republica (/fiducial_images). -->
@@ -24,10 +23,10 @@
         <node pkg="aruco_detect" type="aruco_detect" name="aruco_detect" output="screen" required="true">
                 <param name="image_transport"     value="compressed"/>
                 <param name="publish_images"      value="true"/>       <!-- publica a imagem anotada -->
-                <param name="do_pose_estimation"  value="true"/>
-                <param name="dictionary"          value="0"/>
-                <param name="fiducial_len"        value="0.10"/>
-                <param name="errorCorrectionRate"           value="1"/>
+                <param name="do_pose_estimation"  value="false"/>
+                <param name="dictionary"          value="1"/>          <!-- 1 = DICT_4X4_100 (IDs 0-99); 0 = 4X4_50, só até o ID 49 -->
+                <param name="fiducial_len"        value="0.45"/>
+                <param name="errorCorrectionRate"           value="0.7"/>
                 <param name="maxErroneousBitsInBorderRate"  value="0.35"/>
                 <param name="minMarkerPerimeterRate"        value="0.01"/>
                 <param name="polygonalApproxAccuracyRate"   value="0.15"/>
@@ -38,6 +37,10 @@
                 <remap from="camera_info" to="/camera/camera_info"/>
                 <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
         </node>
+
+    <!-- Imagem anotada legível: ID dos ArUco em letra grande e o texto de cada código de
+         barras/QR ao lado dele. Saída em /detection_overlay/image (raw e /compressed). -->
+    <node pkg="gaivotas_common" type="detection_overlay.py" name="detection_overlay" output="screen"/>
 
     <!-- Visualização da imagem (o tópico pode ser trocado no dropdown da janela) -->
     <node pkg="rqt_image_view" type="rqt_image_view" name="image_view" args="$(arg image_topic)"/>

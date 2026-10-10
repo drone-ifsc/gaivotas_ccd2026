@@ -1,0 +1,15 @@
+material Aruco_QR/Image
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture b345_qr_aruco_id0.png
+        filtering bilinear
+        scale 1.0 1.0
+      }
+    }
+  }
+}

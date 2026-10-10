@@ -1,0 +1,53 @@
+<launch>
+  <!-- Modelos e mundo compartilhados ficam em gaivotas_common; os modelos de mesmo nome
+       de outros pacotes ficam atrás no caminho. -->
+  <env name="GAZEBO_MODEL_PATH" value="$(find gaivotas_common)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <arg name="world_file" default="$(find gaivotas_common)/worlds/arena.world"/>
+
+  <arg name="gui" default="true"/>
+  <arg name="physics" default="ode"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_file)"/>
+    <arg name="extra_gazebo_args" value="--verbose"/>
+    <arg name="physics" value="$(arg physics)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="false"/>
+  </include>
+
+  <!-- Objetos só da A10. O Gazebo Classic não inclui um mundo dentro de outro: o mundo é a
+       arena comum e o que é da missão entra por spawn, um nó por objeto.
+       -database = nome do modelo no GAZEBO_MODEL_PATH; -model = nome (único) no mundo. -->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_arucoqr1" output="screen"
+        args="-sdf -database aruco_qr_symbol -model arucoqr1 -x 4 -y 0.5 -z 1 -R -1.57 -P -1.57 -Y 0"/>
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_arucoqr2" output="screen"
+        args="-sdf -database aruco_qr_symbol -model arucoqr2 -x 5 -y 0.5 -z 1 -R -1.57 -P -1.57 -Y 0"/>
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_arucoqr3" output="screen"
+        args="-sdf -database aruco_qr_symbol -model arucoqr3 -x 6 -y 0.5 -z 1 -R -1.57 -P -1.57 -Y 0"/>
+
+        <include file="$(find gaivotas_common)/launch/apm.launch">
+        <arg name="fcu_url"          value="udp://127.0.0.1:14551@" />
+        <arg name="gcs_url"          value="udp://127.0.0.1:14445@" />
+        <arg name="tgt_system"       value="1" />
+        <arg name="tgt_component"    value="1" />
+        </include>
+
+    <node pkg="gaivotas_common" type="base_reader.py" name="base_reader" output="screen" required="true" /> 
+    <node pkg="gaivotas_common" type="landing_target_sender.py" name="landing_target" output="screen" required="true" />   
+      
+
+        <node pkg="mavros" type="mavsys" name="mavsys_rate_raw_sensors"
+    args="rate --raw-sensors 10" output="screen" launch-prefix="bash -c 'sleep 4.0; $0 $@' " />
+    
+        <arg name="record"     default="true"/>
+    <arg name="bag_dir"    default="$(find a10_gaivotas_ccd2026)/rosbags"/>
+    <arg name="bag_topics" default="/mavros/state /mavros/local_position/pose
+                                    /mavros/setpoint_position/local /mavros/setpoint_raw/local
+                                    /mavros/statustext/recv
+                                    /camera/image_raw/compressed /camera/camera_info"/>
+    <node pkg="rosbag" type="record" name="rosbag_record" output="screen" if="$(arg record)"
+          args="-o $(arg bag_dir)/a11 $(arg bag_topics)"
+          launch-prefix="bash -c 'mkdir -p $(arg bag_dir); $0 $@' "/>
+
+
+</launch>

@@ -1,8 +1,8 @@
 <launch>
-  <arg name="package_location" default="$(find a6_gaivotas_ccd2026)"/>
-
-  <env name="GAZEBO_MODEL_PATH" value="$(arg package_location)/models:$(optenv GAZEBO_MODEL_PATH)"/> <!-- :$(optenv GAZEBO_MODEL_PATH) -->
-  <arg name="world" default="arena"/>  <arg name="world_file" default="$(arg package_location)/worlds/arena.world"/>
+  <!-- Modelos e mundo compartilhados ficam em gaivotas_common; os modelos de mesmo nome
+       de outros pacotes ficam atrás no caminho. -->
+  <env name="GAZEBO_MODEL_PATH" value="$(find gaivotas_common)/models:$(optenv GAZEBO_MODEL_PATH)"/>
+  <arg name="world_file" default="$(find gaivotas_common)/worlds/arena.world"/>
   
   <arg name="gui" default="true"/>
   <arg name="physics" default="ode"/>
