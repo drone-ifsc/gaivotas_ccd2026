@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
+import json
 import math
+import select
+import sys
+import termios
 import threading
-from collections import deque
+import tty
+from collections import deque, namedtuple
+import rospkg
 import rospy
 from mavros_msgs.srv import CommandBool, SetMode, CommandTOL, ParamSet, CommandHome
 from mavros_msgs.msg import PositionTarget, State, ParamValue, StatusText
@@ -14,14 +20,91 @@ from std_msgs.msg import Bool
 from std_srvs.srv import Trigger
 import os
 
-alt = 1.5
+# Rota da missao: arquivo JSON em waypoints/ (parametro ~waypoints, default a10.json).
+Waypoint = namedtuple("Waypoint", "x y z land")
 
-TARGET_COORDS = [
-    #(2, 0),
-    #(2, 3)
-    (0, 4),
-    (-3, 4) 
-]
+
+def load_waypoints(path):
+    """Le a rota de um JSON: lista de {"x": float, "y": float, "z": float, "land": bool}.
+
+    x, y, z em metros no frame mission_start, FRU (x=frente, y=direita, z=cima).
+    land true/1  -> pousa ao chegar no ponto e, se houver mais pontos, decola de novo;
+    land false/0 -> ponto de passagem: ao chegar segue para o proximo.
+    O retorno para casa e um ponto como outro qualquer (ex.: 0, 0, z com land=true).
+    """
+    with open(path) as f:
+        data = json.load(f)
+    if not isinstance(data, list) or not data:
+        raise ValueError(f"{path}: esperada uma lista nao vazia de waypoints")
+    route = []
+    for i, wp in enumerate(data):
+        try:
+            x, y, z = (float(wp[k]) for k in ("x", "y", "z"))
+            land = wp["land"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"{path}: waypoint {i} invalido {wp!r}: precisa de x, y, z numericos e land") from exc
+        if land not in (True, False, 0, 1):
+            raise ValueError(f"{path}: waypoint {i}: land deve ser true/false ou 1/0, veio {land!r}")
+        route.append(Waypoint(x, y, z, bool(land)))
+    return route
+
+class PauseSwitch:
+    """Pausa/continua a missao com a tecla ESPACO no terminal onde o rosrun roda.
+
+    Pausa so o fluxo deste script: o que a FCU ja esta executando (ir ate o ultimo
+    setpoint, LAND, PrecLand) continua. Sem terminal (ex.: roslaunch, docker exec sem -t)
+    nao ha tecla e a missao nunca pausa.
+    """
+
+    def __init__(self):
+        self._running = threading.Event()
+        self._running.set()
+        self._released = False
+        self._fd = None
+        self._old_term = None
+        if sys.stdin.isatty():
+            self._fd = sys.stdin.fileno()
+            self._old_term = termios.tcgetattr(self._fd)
+            tty.setcbreak(self._fd)     # tecla chega sem Enter e sem eco; Ctrl+C continua valendo
+            threading.Thread(target=self._read_keys, daemon=True).start()
+            rospy.loginfo("ESPACO = pausar/continuar a missao")
+        else:
+            rospy.logwarn("Sem terminal: pausa pela tecla ESPACO desativada")
+
+    def _read_keys(self):
+        while not self._released:
+            if select.select([self._fd], [], [], 0.2)[0] and os.read(self._fd, 1) == b" ":
+                self.toggle()
+
+    def toggle(self):
+        if self._released:
+            return
+        if self._running.is_set():
+            self._running.clear()
+            rospy.logwarn("MISSAO PAUSADA - ESPACO para continuar")
+        else:
+            self._running.set()
+            rospy.loginfo("Missao retomada")
+
+    def wait(self):
+        """Bloqueia enquanto pausada. Retorna os segundos parados, para os loops
+        estenderem seus timeouts (senao eles estourariam durante a pausa)."""
+        if self._running.is_set():
+            return 0.0
+        t0 = rospy.get_time()
+        while not self._running.wait(0.1):
+            pass
+        return rospy.get_time() - t0
+
+    def release(self):
+        """Desliga a pausa de vez e devolve o terminal ao normal. Chamar antes de
+        sair: o os._exit do safe_shutdown nao roda os finalizadores."""
+        self._released = True
+        self._running.set()
+        if self._old_term is not None:
+            termios.tcsetattr(self._fd, termios.TCSADRAIN, self._old_term)
+            self._old_term = None
+
 
 class MissionFrame:
     """Mantem um frame fixo no ponto de inicio da missao."""
@@ -101,6 +184,20 @@ class DroneMission:
     def __init__(self):
         rospy.init_node("mission_node", anonymous=True)
 
+        # Rota: ~waypoints = caminho do JSON; nome relativo -> pasta waypoints/ do pacote.
+        #   rosrun a10_gaivotas_ccd2026 mission.py _waypoints:=outra_rota.json
+        waypoints_file = rospy.get_param("~waypoints", "a10.json")
+        if not os.path.isabs(waypoints_file):
+            pkg_dir = rospkg.RosPack().get_path("a10_gaivotas_ccd2026")
+            waypoints_file = os.path.join(pkg_dir, "waypoints", waypoints_file)
+        self.waypoints = load_waypoints(waypoints_file)
+        rospy.loginfo("Rota %s:", waypoints_file)
+        for i, wp in enumerate(self.waypoints):
+            rospy.loginfo("  %d: x=%.2f y=%.2f z=%.2f %s", i, wp.x, wp.y, wp.z,
+                          "POUSO" if wp.land else "passagem")
+        # Altura do ponto atual; usada tambem no retorno de emergencia (safe_shutdown).
+        self.cruise_z = self.waypoints[0].z
+
         # Servicos MAVROS
         rospy.wait_for_service("/mavros/cmd/arming")
         rospy.wait_for_service("/mavros/set_mode")
@@ -134,6 +231,10 @@ class DroneMission:
         # Evento: PrecLand reportou "target found" via STATUSTEXT da FCU
         self._precland_event = threading.Event()
         rospy.Subscriber('/mavros/statustext/recv', StatusText, self._on_statustext)
+
+        # Tecla ESPACO pausa/continua. Criada so aqui, junto do safe_shutdown que devolve
+        # o terminal: um Ctrl+C nas esperas acima nao deixa o terminal sem eco.
+        self.pause = PauseSwitch()
 
         # Handler de shutdown para pouso seguro
         rospy.on_shutdown(self.safe_shutdown)
@@ -173,6 +274,7 @@ class DroneMission:
 
 
     def arm_and_takeoff(self, altitude=2.0):
+        self.pause.wait()
         self.set_mode_srv(custom_mode="GUIDED")
         rospy.loginfo("Mode: GUIDED")
 
@@ -183,6 +285,7 @@ class DroneMission:
         self.takeoff_srv(altitude=altitude)
         timeout = rospy.Time.now().to_sec() + 10
         while self.current_pose.z <= 0.80 * (altitude):
+            timeout += self.pause.wait()
             if timeout < rospy.Time.now().to_sec():
                 rospy.logwarn(f"Timeout de chegar na altura")
                 break
@@ -243,6 +346,7 @@ class DroneMission:
             self.pos_pub.publish(local_msg)
 
             while not rospy.is_shutdown():
+                timeout += self.pause.wait()
                 dist = math.sqrt(
                     (x - self.current_pose.x) ** 2 +
                     (y - self.current_pose.y) ** 2 +
@@ -313,6 +417,7 @@ class DroneMission:
         rate = rospy.Rate(10)
         deadline = rospy.Time.now() + rospy.Duration(timeout)
         while not rospy.is_shutdown():
+            deadline += rospy.Duration(self.pause.wait())
             if self._precland_event.is_set():
                 rospy.loginfo("PrecLand pronto (target found)")
                 return True
@@ -332,6 +437,7 @@ class DroneMission:
         rate = rospy.Rate(5)
         deadline = rospy.Time.now() + rospy.Duration(timeout)
         while not rospy.is_shutdown():
+            deadline += rospy.Duration(self.pause.wait())
             if not self.state.armed:
                 rospy.loginfo("Pouso confirmado (desarmado)")
                 return True
@@ -354,36 +460,46 @@ class DroneMission:
         except rospy.ServiceException as e:
             rospy.logwarn("save_img servico indisponivel: %s", e)
 
-    def execute_mission(self):
-        global alt
+    def sleep(self, seconds):
+        """rospy.sleep que nao conta o tempo em pausa."""
+        end = rospy.get_time() + seconds
+        while not rospy.is_shutdown():
+            end += self.pause.wait()
+            left = end - rospy.get_time()
+            if left <= 0:
+                return
+            rospy.sleep(min(left, 0.1))
 
+    def execute_mission(self):
         try:
             self.reset_home()
-            rospy.sleep(3)
+            self.sleep(3)
             self.capture_mission_start_frame()
 
-            self.arm_and_takeoff(alt)
+            self.arm_and_takeoff(self.waypoints[0].z)
             rospy.loginfo("Pairando por 3 segundos")
-            rospy.sleep(3)
+            self.sleep(3)
 
-            for i in TARGET_COORDS:
-                    
-                self.send_position(i[0], i[1], alt)
+            for i, wp in enumerate(self.waypoints):
+                self.cruise_z = wp.z
+                self.send_position(wp.x, wp.y, wp.z)
+                if not wp.land:
+                    continue    # ponto de passagem: segue para o proximo
+
                 if self.wait_precland_ready(5.0):
                     rospy.loginfo("PrecLand activated normally")
                 else:
                     rospy.loginfo("No PrecLand")
-                    self.send_body_offset(0, 0, -0.5)
-                    
+                    self.send_body_offset(0, 0, -0.8)
+
                 self.set_mode_srv(custom_mode="LAND")
-                self.wait_until_landed(40.0)
-                rospy.sleep(10)
+                self.wait_until_landed(30.0)
 
-                self.arm_and_takeoff(alt)
+                if i + 1 < len(self.waypoints):     # ainda ha rota: decola para o proximo ponto
+                    self.sleep(10)
+                    self.arm_and_takeoff(self.waypoints[i + 1].z)
 
-            rospy.loginfo("Retornando para a origem")
-            self.send_position(0, 0, alt)
-            self.set_mode_srv(custom_mode="LAND")
+            rospy.loginfo("Rota concluida")
 
 
         except rospy.ROSInterruptException:
@@ -391,9 +507,10 @@ class DroneMission:
 
     def safe_shutdown(self):
         rospy.loginfo("Shutdown iniciado. Tentando pousar...")
+        self.pause.release()    # nao travar na pausa e devolver o terminal antes do os._exit
         try:
             rospy.loginfo("Retornando para a origem")
-            self.send_position(0, 0, alt)
+            self.send_position(0, 0, self.cruise_z)
 
             self.set_mode_srv(custom_mode="LAND")
             self.arming_srv(False)
