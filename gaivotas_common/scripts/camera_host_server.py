@@ -153,7 +153,7 @@ def apply_hsv_correction(img_bgr, h_shift, s_gain, v_gain):
 EXPOSURE_PRESETS = {
     "day":     {"shutter": 500,  "gain": 0.8,  "awb": "daylight"},
     "evening": {"shutter": 8000,  "gain": 10,   "awb": None},
-    "night":   {"shutter": 14000, "gain": 16,   "awb": None},
+    "night":   {"shutter": 16000, "gain": 16,   "awb": None},
 }
 
 
