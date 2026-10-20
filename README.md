@@ -12,7 +12,8 @@ gaivotas_ccd2026/
 │   │   └── apm_config.yaml            (MAVROS config shared by the missions)
 │   └── scripts/
 │       ├── base_reader.py             (landing-base detection — yolo / mobilenetv2)
-│       ├── camera_host_server.py      (on-drone camera server)
+│       ├── camera_driver.py           (on-drone camera driver, inside the container; needs libcamera there)
+│       ├── camera_host_server.py      (same driver run on the drone host, rospypi)
 │       ├── landing_target_sender.py   (sends the landing target to MAVROS)
 │       ├── ai_models/                 (submodule -> drone-ifsc/ai_models)
 │       └── camera_correction/         (submodule -> drone-ifsc/camera_correction)

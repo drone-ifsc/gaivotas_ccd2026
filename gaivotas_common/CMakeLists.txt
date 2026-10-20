@@ -9,6 +9,7 @@ catkin_package()
 #   rosrun gaivotas_common base_reader.py
 catkin_install_python(PROGRAMS
   scripts/base_reader.py
+  scripts/camera_driver.py
   scripts/camera_host_server.py
   scripts/detection_overlay.py
   scripts/landing_target_sender.py
