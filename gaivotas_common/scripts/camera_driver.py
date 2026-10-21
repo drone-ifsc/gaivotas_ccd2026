@@ -302,7 +302,7 @@ def main():
     framerate    = rospy.get_param("~framerate", 5)
     quality      = rospy.get_param("~quality", 50)
     undistort    = rospy.get_param("~undistort",  True)
-    default_calib = os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera_correction/imx219_3280x2464/ost.yaml")
+    default_calib = os.path.join(os.path.dirname(os.path.abspath(__file__)), "camera_correction/imx219_1640x1232/ost.yaml")
     calib_file   = rospy.get_param("~calib_file", default_calib)
     publish_camera_info = rospy.get_param("~publish_camera_info", True)
     frame_id     = rospy.get_param("~frame_id", "camera")
