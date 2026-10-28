@@ -38,6 +38,42 @@ MAVROS is started by each mission through the shared launch, overriding only wha
 </include>
 ```
 
+## Simulation (Gazebo Classic + ArduPilot SITL)
+
+Each mission has a simulation launch with the same structure: Gazebo with the shared arena
+(`gaivotas_common/worlds/arena.world`) plus the mission's own objects spawned from the launch,
+the drone model with the ArduPilot plugin, MAVROS pointed at SITL (`tgt_system 1`), the
+vision nodes and rosbag recording (`record:=false` to turn it off).
+
+| Mission | Launch |
+|---|---|
+| A4 | `roslaunch a4_gaivotas_ccd2026 mission_gazebo.launch` |
+| A6 | `roslaunch a6_gaivotas_ccd2026 mission_gazebo.launch` |
+| A10 | `roslaunch a10_gaivotas_ccd2026 gazebo.launch` |
+
+The real-flight MAVROS settings stay only in `gaivotas_common/launch/apm.launch`; the
+simulation launches override just the SITL addresses.
+
+1. Gazebo + MAVROS, in the ROS container — the mission's launch from the table above.
+
+2. ArduPilot SITL, on the host (ArduPilot tree in `~/ardupilot`, `Tools/autotest` in `PATH`):
+
+   ```bash
+   cd ~/ardupilot/ArduCopter
+   sim_vehicle.py -v ArduCopter -f gazebo-iris --console --map --out=udp:127.0.0.1:14551
+   ```
+
+   - `-f gazebo-iris` — SITL does not simulate the physics itself; it exchanges sensor and
+     motor data with the Gazebo ArduPilot plugin over UDP 9002/9003 (`fdm_port_in` /
+     `fdm_port_out` in `gaivotas_common/models/droneIFSC/model.sdf`). The container runs with
+     host networking, so `127.0.0.1` reaches it.
+   - `--out=udp:127.0.0.1:14551` — MAVLink for MAVROS (`fcu_url` in the simulation launches listens on
+     14551). sim_vehicle already sends to 14550 on its own (QGroundControl).
+   - Run it from `ArduCopter/`: SITL keeps its parameters (`eeprom.bin`) and logs in the
+     current directory. Add `-w` once to reset the parameters to defaults.
+
+3. Mission: `rosrun <mission package> mission.py`, e.g. `rosrun a10_gaivotas_ccd2026 mission.py`
+
 ## Bootstrap
 
 ```bash
