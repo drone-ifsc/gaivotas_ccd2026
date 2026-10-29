@@ -10,7 +10,6 @@ catkin_package()
 catkin_install_python(PROGRAMS
   scripts/base_reader.py
   scripts/camera_driver.py
-  scripts/camera_host_server.py
   scripts/detection_overlay.py
   scripts/landing_target_sender.py
   scripts/rqt_bag_autopublish.py

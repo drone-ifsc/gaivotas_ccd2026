@@ -18,12 +18,8 @@
     <arg name="headless" value="false"/>
   </include>
 
-  <!-- Objetos só da A4. O Gazebo Classic não inclui um mundo dentro de outro: o mundo é a
-       arena comum e o que é da missão entra por spawn, um nó por objeto.
-       -database = nome do modelo no GAZEBO_MODEL_PATH; -model = nome (único) no mundo. Ex.:
-  <node pkg="gazebo_ros" type="spawn_model" name="spawn_obj1" output="screen"
-        args="-sdf -database base_pouso_alt1 -model obj1 -x 4 -y 0 -z 0 -Y 0"/>
-  -->
+  <!-- A A4 usa a arena comum como está (as duas bases de pouso), sem objetos próprios.
+       Objetos só da missão entrariam aqui por spawn, um nó por objeto, como no a10 gazebo.launch. -->
 
   <!-- MAVROS no SITL: os parametros do voo real ficam no apm.launch, aqui so o que muda
        na simulacao (o sim_vehicle manda o MAVLink para a porta 14551). -->

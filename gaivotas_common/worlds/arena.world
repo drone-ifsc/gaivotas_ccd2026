@@ -25,7 +25,7 @@
     <model name="base2">
       <include> 
         <uri>model://base_pouso</uri>
-        <pose>10 1 0 0 0 0</pose>
+        <pose>8 2 0 0 0 0</pose>
       </include> 
     </model>
 

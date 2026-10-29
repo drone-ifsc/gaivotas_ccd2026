@@ -13,7 +13,6 @@ gaivotas_ccd2026/
 │   └── scripts/
 │       ├── base_reader.py             (landing-base detection — yolo / mobilenetv2)
 │       ├── camera_driver.py           (on-drone camera driver, inside the container; needs libcamera there)
-│       ├── camera_host_server.py      (same driver run on the drone host, rospypi)
 │       ├── landing_target_sender.py   (sends the landing target to MAVROS)
 │       ├── ai_models/                 (submodule -> drone-ifsc/ai_models)
 │       └── camera_correction/         (submodule -> drone-ifsc/camera_correction)
@@ -25,9 +24,10 @@ gaivotas_ccd2026/
 ```
 
 Missions call the shared nodes with `pkg="gaivotas_common"` in their launch files and
-pass the mission-specific parameters (model, topics) through the launch. The
-`camera_host_server.py` runs on the drone and is started separately:
-`rosrun gaivotas_common camera_host_server.py`.
+pass the mission-specific parameters (model, topics) through the launch. The camera
+driver runs on the drone, inside the ROS container, and is started separately:
+`rosrun gaivotas_common camera_driver.py` (needs libcamera built in the container, see
+the script's docstring).
 
 MAVROS is started by each mission through the shared launch, overriding only what differs:
 
@@ -42,13 +42,14 @@ MAVROS is started by each mission through the shared launch, overriding only wha
 
 Each mission has a simulation launch with the same structure: Gazebo with the shared arena
 (`gaivotas_common/worlds/arena.world`) plus the mission's own objects spawned from the launch,
-the drone model with the ArduPilot plugin, MAVROS pointed at SITL (`tgt_system 1`), the
-vision nodes and rosbag recording (`record:=false` to turn it off).
+the drone model with the ArduPilot plugin, MAVROS pointed at SITL (`tgt_system 1`) and the
+vision nodes. The shared arena has the two landing bases; A4 and A6 use it as is, A10 spawns
+its ArUco/QR symbols on top and also records a rosbag (`record:=false` to turn it off).
 
 | Mission | Launch |
 |---|---|
-| A4 | `roslaunch a4_gaivotas_ccd2026 mission_gazebo.launch` |
-| A6 | `roslaunch a6_gaivotas_ccd2026 mission_gazebo.launch` |
+| A4 | `roslaunch a4_gaivotas_ccd2026 gazebo.launch` |
+| A6 | `roslaunch a6_gaivotas_ccd2026 gazebo.launch` |
 | A10 | `roslaunch a10_gaivotas_ccd2026 gazebo.launch` |
 
 The real-flight MAVROS settings stay only in `gaivotas_common/launch/apm.launch`; the

@@ -12,39 +12,22 @@ parametros e processamento do camera_host_server.py:
 ##  ATENCAO: PRECISA DA LIBCAMERA (fork da Raspberry Pi) + rpicam-apps INSTALADOS NO
 ##  CONTAINER. O Ubuntu 20.04 do container nao tem pacote; a libcamera do host
 ##  (Raspberry Pi OS / Debian 12) nao serve: exige GLIBC 2.34, o container tem 2.31.
-##  Compilar dentro do container (como root), nas mesmas versoes do host:
+##  Compilar dentro do container (como root), nas mesmas versoes do host, com o script
+##  que esta no repositorio (testado no RPi 5; ~3 min):
 ##
-##    apt-get install -y --no-install-recommends git python3-pip python3-yaml \
-##        python3-ply libyaml-dev libgnutls28-dev libssl-dev pkg-config ninja-build \
-##        g++ libboost-program-options-dev libexif-dev libjpeg-dev libtiff-dev \
-##        libpng-dev
-##    pip3 install 'meson>=1.3,<1.7'          # o meson do focal (0.53) e velho demais
+##    bash /root/catkin_ws/src/gaivotas_ccd2026/gaivotas_common/scripts/utils/build_libcamera.sh
 ##
-##    git clone --depth 1 --branch v0.5.2+rpt20250903 \
-##        https://github.com/raspberrypi/libcamera.git && cd libcamera
-##    meson setup build --buildtype=release -Dpipelines=rpi/vc4 -Dipas=rpi/vc4 \
-##        -Dv4l2=false -Dgstreamer=disabled -Dtest=false -Dlc-compliance=disabled \
-##        -Dcam=disabled -Dqcam=disabled -Ddocumentation=disabled -Dpycamera=disabled
-##    ninja -C build install && ldconfig
-##    # headers do kernel do focal (5.4) nao tem dma-heap.h; usa a copia da libcamera
-##    mkdir -p /usr/local/include/linux
-##    cp include/linux/dma-heap.h /usr/local/include/linux/
+##  Ele instala libpisp v1.2.1 + libcamera v0.5.2+rpt20250903 (pipelines rpi/vc4 do RPi 4 e
+##  rpi/pisp do RPi 5) + rpicam-apps v1.8.1, contornando o que falta no focal: meson via pip
+##  (o 0.53 do apt e velho), nlohmann_json 3.11.3 (a libpisp usa ordered_json), dma-heap.h
+##  (headers do kernel 5.4) e -Dwerror=false (warnings do gcc 9).
 ##
-##    cd .. && git clone --depth 1 --branch v1.8.1 \
-##        https://github.com/raspberrypi/rpicam-apps.git && cd rpicam-apps
-##    meson setup build --buildtype=release -Denable_libav=disabled \
-##        -Denable_drm=disabled -Denable_egl=disabled -Denable_qt=disabled \
-##        -Denable_opencv=disabled -Denable_tflite=disabled -Denable_hailo=disabled
-##    ninja -C build install && ldconfig
-##
-##  Depois: docker commit do container. Teste: rpicam-hello --list-cameras
-##  (git clone falhando com erro de TLS no container: clonar no host em ~/catkin_ws,
-##  que e montado no container, e compilar de la.)
+##  Teste: rpicam-hello --list-cameras. A instalacao fica na camada do container: para
+##  sobreviver a recriacao dele, docker commit.
 ########################################################################################
 
 Requisitos do container: privileged (ve /dev/video*, /dev/media*, /dev/v4l-subdev*,
-/dev/dma_heap). A camera so aceita UM processo por vez: o camera_host_server.py do host
-precisa estar parado.
+/dev/dma_heap). A camera so aceita UM processo por vez.
 
 Execucao (no container, com o roscore no ar):
     rosrun gaivotas_common camera_driver.py
