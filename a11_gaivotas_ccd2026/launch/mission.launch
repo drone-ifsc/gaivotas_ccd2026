@@ -24,4 +24,6 @@
                 <!-- saída: imagem em /fiducial_images ; poses em /fiducial_transforms -->
         </node>
         
+        <node pkg="gaivotas_common" type="detection_overlay.py" name="detection_overlay" output="screen"/>
+
 </launch>
