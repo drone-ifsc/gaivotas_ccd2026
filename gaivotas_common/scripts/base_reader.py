@@ -16,18 +16,6 @@ from cv_bridge import CvBridge
 # ALT_SCALE = Z * d_px medido. Sem isso, dist_2_alt nao esta em metros.
 ALT_SCALE = 230 #250
 
-class WebcamNode:
-    def __init__(self):
-        self.bridge = CvBridge()
-        self.cv_image = None
-        rospy.Subscriber("/camera/image_raw", Image, self.callback)
-
-    def callback(self, msg):
-        try:
-            self.cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
-        except Exception as e:
-            rospy.logerr("Erro na conversão: %s", e)
-
 def dist_2_pts(x1, y1, x2, y2):
 	return np.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
@@ -155,30 +143,45 @@ def main():
 		rospy.signal_shutdown("backend invalido")
 		return
 
+	latest = {"msg": None} 
+	def on_image(msg):
+		latest["msg"] = msg
 
 	def _on_shutdown():
 		rospy.loginfo("Saida forcada para liberar threads do NCNN/torch")
 		os._exit(0)
 	rospy.on_shutdown(_on_shutdown)
 
-	bridge = CvBridge() if publish_image else None
 	pose_pub = rospy.Publisher('base_reader/pose', Point, queue_size=1)
 	calib_pub = rospy.Publisher('base_reader/image_calib/compressed', CompressedImage, queue_size=1) if publish_image else None
 
-	gaugecam = WebcamNode()
-	rospy.loginfo("webcam_opencv rodando. Escutando /camera/image_raw...")
+	rospy.Subscriber("/camera/image_raw", Image, on_image, queue_size=1, buff_size=2**24)
 
 	rate = rospy.Rate(rate_hz)
 
 	rospy.loginfo("No base_reader iniciado (model=%s, publish_image=%s, rate=%dHz)", model_path, publish_image, rate_hz)
 
 	while not rospy.is_shutdown():
-		frame = gaugecam.cv_image
 
-		if frame is None:
-			rospy.logwarn("Sem frame da camera. Tentando novamente...")
+		img_msg = latest["msg"]
+		if img_msg is None:
+			rospy.logwarn_throttle(2.0, "Sem frame da camera. Tentando novamente...")
 			rate.sleep()
 			continue
+		
+		if type(img_msg) == Image: 
+			frame = np.frombuffer(img_msg.data, np.uint8) \
+		          .reshape(img_msg.height, img_msg.step)[:, :img_msg.width * 3] \
+		          .reshape(img_msg.height, img_msg.width, 3)
+		
+			if img_msg.encoding == "rgb8":      
+				frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+			else:
+				frame = frame.copy()    
+		
+		elif type(img_msg) == CompressedImage:
+			frame = cv2.imdecode(np.frombuffer(img_msg.data, np.uint8), cv2.IMREAD_COLOR)
+		
 
 		clean_frame = frame.copy()
 		result = find_fn(frame, model)

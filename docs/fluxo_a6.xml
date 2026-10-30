@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Missão A6" id="Missão A6">
+    <mxGraphModel grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ini" value="Início" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="loop" value="Repetir 2 vezes (estação final e volta à inicial)" style="swimlane;whiteSpace=wrap;html=1;startSize=23;align=left;spacingLeft=4;" vertex="1" parent="1">
+          <mxGeometry x="20" y="130" width="340" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="tko" value="Decolagem até 1,5 m" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="loop">
+          <mxGeometry x="40" y="40" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="fly" value="Voo até a estação" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="loop">
+          <mxGeometry x="40" y="120" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="det" value="Base detectada pela câmera?" style="rhombus;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="loop">
+          <mxGeometry x="40" y="200" width="160" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="down" value="Descida de 0,8 m" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="loop">
+          <mxGeometry x="230" y="220" width="95" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="land" value="Pouso de precisão na base" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;" vertex="1" parent="loop">
+          <mxGeometry x="40" y="320" width="160" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="fim" value="Fim" style="rounded=1;whiteSpace=wrap;html=1;arcSize=50;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="80" y="560" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="ini" target="tko">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="tko" target="fly">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="fly" target="det">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="V" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="det" target="land">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="F" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="det" target="down">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="down" target="land">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="297" y="475" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;" edge="1" parent="1" source="land" target="fim">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
