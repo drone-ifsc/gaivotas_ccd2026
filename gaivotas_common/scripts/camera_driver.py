@@ -139,7 +139,7 @@ def apply_hsv_correction(img_bgr, h_shift, s_gain, v_gain):
 EXPOSURE_PRESETS = {
     "day":     {"shutter": 1000,  "gain": 1,  "awb": "daylight"},
     "evening": {"shutter": 5000,  "gain": 6,   "awb": None},
-    "night":   {"shutter": 14000, "gain": 14,   "awb": None},
+    "night":   {"shutter": 12000, "gain": 12,   "awb": None},
 }
 
 
@@ -354,7 +354,7 @@ def main():
 
     # Preset de exposicao: 'auto' -> mede o brilho da cena (camera ainda livre,
     # antes do rpicam-vid) e escolhe day/evening/night pelos thresholds.
-    preset = str(rospy.get_param("~exposure_preset", "auto")).lower()
+    preset = str(rospy.get_param("~exposure_preset", "evening")).lower()
     day_thresh = float(rospy.get_param("~brightness_day_thresh", 40.0))
     night_thresh = float(rospy.get_param("~brightness_night_thresh", 10.0))
 
