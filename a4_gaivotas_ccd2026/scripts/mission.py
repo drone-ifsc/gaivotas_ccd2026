@@ -498,7 +498,7 @@ class DroneMission:
                 self.set_mode_srv(custom_mode="LAND")
                 self.wait_until_landed(30.0)
 
-                resp = self.soltar_gancho(servo=5, pwm_first=2000, pwm_second=1200, delay_sec=3.0)
+                resp = self.soltar_gancho(servo=6, pwm_first=1900, pwm_second=1200, delay_sec=3.0)
                 if not resp.success:
                     rospy.logwarn("Falha ao soltar gancho: %s", resp.message)
 
