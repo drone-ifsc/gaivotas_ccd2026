@@ -1,0 +1,7 @@
+uint8 servo
+uint16 pwm_first
+uint16 pwm_second
+float32 delay_sec
+---
+bool success
+string message

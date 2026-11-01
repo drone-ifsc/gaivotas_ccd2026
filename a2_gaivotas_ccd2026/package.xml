@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>a4_gaivotas_ccd2026</name>
+  <name>a2_gaivotas_ccd2026</name>
   <version>0.0.1</version>
-  <description>The package for the A4 mission of CCD competition</description>
+  <description>The package for the A2 mission of CCD competition</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
