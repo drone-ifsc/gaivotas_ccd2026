@@ -1,0 +1,25 @@
+<launch>
+        <include file="$(find gaivotas_common)/launch/apm.launch">
+        </include>
+    <!-- Acelerômetro/IMU estão no grupo RAW_SENSORS (RAW_IMU, SCALED_IMU2/3, SCALED_PRESSURE).
+         LANDING_TARGET nao tem grupo: o FCU so o recebe (companion->FCU), nao o transmite;
+         sua taxa e controlada pelo no landing_target_sender (~rate).
+         bash equivalente: rosrun mavros mavsys rate (два минуса)raw-sensors 20 -->
+    
+    <node pkg="gaivotas_common" type="base_reader.py" name="base_reader" output="screen" required="true" /> 
+    <node pkg="gaivotas_common" type="landing_target_sender.py" name="landing_target" output="screen" required="true" />   
+    
+    <node pkg="mavros" type="mavsys" name="mavsys_rate_raw_sensors"
+    args="rate --raw-sensors 20" output="screen" launch-prefix="bash -c 'sleep 4.0; $0 $@' " /> 
+    
+    <arg name="record"     default="true"/>
+    <arg name="bag_dir"    default="$(find a2_gaivotas_ccd2026)/rosbags"/>
+    <arg name="bag_topics" default="/mavros/state /mavros/local_position/pose
+                                    /mavros/setpoint_position/local /mavros/setpoint_raw/local
+                                    /mavros/statustext/recv
+                                    /camera/image_raw/compressed /camera/camera_info"/>
+    <node pkg="rosbag" type="record" name="rosbag_record" output="screen" if="$(arg record)"
+          args="-o $(arg bag_dir)/a2 $(arg bag_topics)"
+          launch-prefix="bash -c 'mkdir -p $(arg bag_dir); $0 $@' "/>
+
+</launch>
