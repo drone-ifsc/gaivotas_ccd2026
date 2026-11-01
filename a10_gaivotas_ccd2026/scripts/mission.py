@@ -477,12 +477,11 @@ class DroneMission:
             self.capture_mission_start_frame()
 
             self.arm_and_takeoff(self.waypoints[0].z)
-            rospy.loginfo("Pairando por 3 segundos")
-            self.sleep(3)
 
             for i, wp in enumerate(self.waypoints):
                 self.cruise_z = wp.z
                 self.send_position(wp.x, wp.y, wp.z)
+                self.sleep(3)
                 if not wp.land:
                     continue    # ponto de passagem: segue para o proximo
 
