@@ -13,6 +13,7 @@ catkin_install_python(PROGRAMS
   scripts/detection_overlay.py
   scripts/landing_target_sender.py
   scripts/rqt_bag_autopublish.py
+  scripts/stream_keeper.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

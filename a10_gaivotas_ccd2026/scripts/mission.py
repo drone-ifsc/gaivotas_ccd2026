@@ -210,11 +210,7 @@ class DroneMission:
         self.takeoff_srv = rospy.ServiceProxy("/mavros/cmd/takeoff", CommandTOL)
         self.set_home_srv = rospy.ServiceProxy('/mavros/cmd/set_home', CommandHome)
 
-        # Servico opcional: salva o frame atual em mission_captures/
-        # Nao bloqueia inicializacao se o servico ainda nao subiu.
-        self.save_img_srv = rospy.ServiceProxy('save_img', Trigger)
-
-        # Subscribers para topicos MAVROS
+       # Subscribers para topicos MAVROS
         self.current_pose   = None
         self.current_local_pose = None
         self.state          = State()

@@ -1,16 +1,12 @@
 <launch>
         <include file="$(find gaivotas_common)/launch/apm.launch">
         </include>
-    <!-- Acelerômetro/IMU estão no grupo RAW_SENSORS (RAW_IMU, SCALED_IMU2/3, SCALED_PRESSURE).
-         LANDING_TARGET nao tem grupo: o FCU so o recebe (companion->FCU), nao o transmite;
-         sua taxa e controlada pelo no landing_target_sender (~rate).
-         bash equivalente: rosrun mavros mavsys rate (два минуса)raw-sensors 20 -->
     
     <node pkg="gaivotas_common" type="base_reader.py" name="base_reader" output="screen" required="true" /> 
     <node pkg="gaivotas_common" type="landing_target_sender.py" name="landing_target" output="screen" required="true" />   
     
-    <node pkg="mavros" type="mavsys" name="mavsys_rate_raw_sensors"
-    args="rate --raw-sensors 20" output="screen" launch-prefix="bash -c 'sleep 4.0; $0 $@' " /> 
+    <node pkg="a2_gaivotas_ccd2026" type="servo_sequence_service.py" name="servo_sequence_service" output="screen" required="true" /> 
+
     
     <arg name="record"     default="true"/>
     <arg name="bag_dir"    default="$(find a2_gaivotas_ccd2026)/rosbags"/>

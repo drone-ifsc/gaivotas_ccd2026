@@ -2,14 +2,14 @@
 """Dois pulsos PWM num servo da FCU (MAV_CMD_DO_SET_SERVO via MAVROS), com espera entre eles.
 
 Rodar o nó:
-    rosrun a4_gaivotas_ccd2026 servo_sequence_service.py
+    rosrun a3_gaivotas_ccd2026 servo_sequence_service.py
 
-Chamar pelo terminal (o mesmo que a missão A4 faz para soltar o gancho):
+Chamar pelo terminal (o mesmo que a missão A3 faz para soltar o gancho):
     rosservice call /servo_sequence_service/run "{servo: 6, pwm_first: 1900, pwm_second: 1200, delay_sec: 3.0}"
 """
 import rospy
 from mavros_msgs.srv import CommandLong
-from a4_gaivotas_ccd2026.srv import ServoSequence, ServoSequenceResponse
+from a3_gaivotas_ccd2026.srv import ServoSequence, ServoSequenceResponse
 
 
 MAV_CMD_DO_SET_SERVO = 183

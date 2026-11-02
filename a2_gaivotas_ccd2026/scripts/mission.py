@@ -18,10 +18,10 @@ import tf2_ros
 from webcam_opencv.msg import ObjectDetected
 from std_msgs.msg import Bool
 from std_srvs.srv import Trigger
-from a4_gaivotas_ccd2026.srv import ServoSequence
+from a2_gaivotas_ccd2026.srv import ServoSequence
 import os
 
-# Rota da missao: arquivo JSON em waypoints/ (parametro ~waypoints, default a4.json).
+# Rota da missao: arquivo JSON em waypoints/ (parametro ~waypoints, default a2.json).
 Waypoint = namedtuple("Waypoint", "x y z land")
 
 
@@ -186,10 +186,10 @@ class DroneMission:
         rospy.init_node("mission_node", anonymous=True)
 
         # Rota: ~waypoints = caminho do JSON; nome relativo -> pasta waypoints/ do pacote.
-        #   rosrun a4_gaivotas_ccd2026 mission.py _waypoints:=outra_rota.json
-        waypoints_file = rospy.get_param("~waypoints", "a4.json")
+        #   rosrun a2_gaivotas_ccd2026 mission.py _waypoints:=outra_rota.json
+        waypoints_file = rospy.get_param("~waypoints", "a2.json")
         if not os.path.isabs(waypoints_file):
-            pkg_dir = rospkg.RosPack().get_path("a4_gaivotas_ccd2026")
+            pkg_dir = rospkg.RosPack().get_path("a2_gaivotas_ccd2026")
             waypoints_file = os.path.join(pkg_dir, "waypoints", waypoints_file)
         self.waypoints = load_waypoints(waypoints_file)
         rospy.loginfo("Rota %s:", waypoints_file)

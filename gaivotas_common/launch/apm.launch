@@ -31,4 +31,9 @@
         <arg name="fcu_protocol"     value="$(arg fcu_protocol)" />
         <arg name="respawn_mavros"   value="$(arg respawn_mavros)" />
     </include>
+
+    <!-- Pede à FCU os streams que as missões usam (posição local, RAW_SENSORS) assim que o
+         MAVROS conecta, e acusa ERRO se a posição local não chegar. -->
+    <arg name="stream_keeper" default="true" />
+    <node if="$(arg stream_keeper)" pkg="gaivotas_common" type="stream_keeper.py" name="stream_keeper" output="screen" />
 </launch>
