@@ -486,7 +486,7 @@ class DroneMission:
             for i, wp in enumerate(self.waypoints):
                 self.cruise_z = wp.z
                 self.send_position(wp.x, wp.y, wp.z)
-                self.sleep(4)
+                self.sleep(8)
                 if not wp.land:
                     continue    # ponto de passagem: segue para o proximo
 

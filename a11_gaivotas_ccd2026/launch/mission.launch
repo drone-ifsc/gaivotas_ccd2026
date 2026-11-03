@@ -4,9 +4,9 @@
                 <param name="image_transport"     value="compressed"/>
                 <param name="publish_images"      value="true"/>       <!-- publica a imagem anotada -->
                 <param name="do_pose_estimation"  value="false"/>
-                <param name="dictionary"          value="1"/>          <!-- 1 = DICT_4X4_100 (IDs 0-99); 0 = 4X4_50, só até o ID 49 -->
+                <param name="dictionary"          value="0"/>          <!-- 1 = DICT_4X4_100 (IDs 0-99); 0 = 4X4_50, só até o ID 49 -->
                 <param name="fiducial_len"        value="0.10"/>
-                <param name="errorCorrectionRate"           value="1.6"/>
+                <param name="errorCorrectionRate"           value="2"/>
                 <param name="maxErroneousBitsInBorderRate"  value="0.35"/>
                 <param name="minMarkerPerimeterRate"        value="0.1"/>
                 <param name="polygonalApproxAccuracyRate"   value="0.05"/>
