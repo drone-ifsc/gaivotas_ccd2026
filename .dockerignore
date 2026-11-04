@@ -1,0 +1,5 @@
+# Build context of the images in docker/ (drone, laptop): only what the Dockerfiles copy. Without
+# this Docker would send the whole repository (models, rosbags) on every build.
+*
+!docker/
+!gaivotas_common/scripts/utils/build_libcamera.sh

@@ -43,12 +43,13 @@ Parametros (via rosparam):
     ~framerate      int  — fps                                   (default 5)
     ~quality        int  — qualidade JPEG 1-100             (default 50)
     ~undistort      bool — corrigir distorcao de lente      (default True)
-    ~calib_file     str  — caminho para ost.yaml            (default: camera_correction/imx219_3280x2464/ost.yaml)
+    ~calib_file     str  — caminho para ost.yaml            (default: camera_correction/imx219_1640x1232/ost.yaml)
     ~publish_camera_info bool — publicar CameraInfo em /camera/camera_info (default True)
     ~frame_id       str  — frame_id de Image/CameraInfo     (default "camera")
-    ~exposure_preset str — 'auto' (mede brilho na partida) ou 'day'/'evening'/'night' (default auto)
-    ~brightness_day_thresh   float — brilho medio >= disso -> day   (default 70)
-    ~brightness_night_thresh float — brilho medio <  disso -> night (default 20)
+    ~exposure_preset str — 'sun'/'day'/'evening'/'night', ou 'auto' (mede o brilho uma vez na
+                           partida e escolhe day/evening/night)  (default day)
+    ~brightness_day_thresh   float — brilho medio >= disso -> day   (default 40)
+    ~brightness_night_thresh float — brilho medio <  disso -> night (default 10)
     ~hsv_correct    bool — aplicar correcao HSV             (default False)
     ~hsv_h_shift    float — deslocamento de matiz [-180..180] (default 0)
     ~hsv_s_gain     float — ganho de saturacao [0..3]       (default 0.8)
@@ -277,9 +278,9 @@ def main():
     # FoV CHEIO com resolucao pequena: o sensor le o quadro inteiro com binning
     # 2x2 (1640x1232, FoV completo, em hardware) e o ISP so REDIMENSIONA para a
     # saida (leve, em hardware) -- nao ha recorte de centro. sensor_mode = FoV;
-    # width/height = tamanho de saida (default 820x616 = metade exata do modo,
-    # mesmo aspecto, sem distorcao). Para menor ainda: ~width/~height (mantenha
-    # ~1.331 de aspecto). NAO ponha 640:480 em ~sensor_mode: isso recorta o centro.
+    # width/height = tamanho de saida (default 1640x1232 = o proprio modo, sem
+    # rescale; 820x616 = metade exata, mesmo aspecto). Para menor: ~width/~height
+    # (mantenha ~1.331 de aspecto). NAO ponha 640:480 em ~sensor_mode: isso recorta o centro.
     sensor_mode  = str(rospy.get_param("~sensor_mode", "1640:1232"))
     width        = rospy.get_param("~width",  1640)
     height       = rospy.get_param("~height", 1232)
@@ -315,7 +316,7 @@ def main():
                       sensor_mode, width, height)
 
     if not (publish_raw or publish_jpeg):
-        rospy.logfatal("publish_raw=False и publish_jpeg=False — нечего публиковать")
+        rospy.logfatal("publish_raw=False и publish_jpeg=False — nada para publicar")
         sys.exit(1)
 
     # Calibracao: carrega uma vez. Necessaria para undistort e/ou CameraInfo.

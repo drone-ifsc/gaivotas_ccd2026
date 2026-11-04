@@ -1,0 +1,102 @@
+# pip packages of the laptop image (Python 3.8, focal's pip 20.0) = those of the current laptop
+# container, all pinned: pip 20 does not understand manylinux_2_28 wheels and, without a pinned
+# version, compiles from source.
+# Exception: ncnn. The laptop's one (1.0.20260408) was compiled from source and is not on PyPI;
+# 1.0.20250503 (same as the drone) is the last version with a manylinux2014 wheel for cp38.
+# Left out on purpose: the CUDA packages (nvidia-*, triton) and the ArduPilot/PX4 firmware build
+# tools — SITL runs on the host.
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# Detection and model export (base_reader, utils/prelabel_yolo_pose.py, utils/pt_2_ncnn.py):
+# ultralytics + torch, ncnn/pnnx for the NCNN export, onnx*, tensorflow/tflite for mobilenetv2.
+# torch is the CPU-only build: the laptop has an AMD GPU, and the default x86 wheel would add
+# ~3 GB of CUDA libraries that are never used.
+ultralytics==8.4.49
+ultralytics-thop==2.0.19
+torch==2.4.1+cpu
+torchvision==0.19.1+cpu
+ncnn==1.0.20250503
+pnnx==20260409
+onnx==1.17.0
+onnxruntime==1.16.3
+onnxscript==0.1.0
+onnxslim==0.1.95
+tensorflow==2.13.1
+tflite-runtime==2.14.0
+tflite==2.18.0
+numpy==1.24.3
+opencv-python==4.12.0.88
+
+# MAVLink tools (mavproxy.py, pymavlink)
+MAVProxy==1.8.71
+pymavlink==2.4.42
+pynmeagps==1.0.42
+pyserial==3.5
+future==1.0.0
+lxml==5.3.1
+
+# QR codes in detection_overlay.py
+pyzbar==0.1.9
+
+# their dependencies. typing-extensions stays at 4.5.0 because tensorflow 2.13 needs <4.6; torch
+# asks for >=4.8 but works with it (as on the laptop) — pip prints a conflict message, not an error.
+absl-py==2.3.1
+astunparse==1.6.3
+cachetools==5.5.2
+certifi==2025.1.31
+charset-normalizer==3.4.1
+colorama==0.4.6
+coloredlogs==15.0.1
+contourpy==1.1.1
+dill==0.4.0
+filelock==3.16.1
+flatbuffers==25.9.23
+fonttools==4.57.0
+fsspec==2025.3.0
+gast==0.4.0
+google-auth==2.40.3
+google-auth-oauthlib==1.0.0
+google-pasta==0.2.0
+grpcio==1.70.0
+h5py==3.11.0
+humanfriendly==10.0
+importlib-metadata==8.5.0
+importlib-resources==6.4.5
+Jinja2==3.0.3
+keras==2.13.1
+libclang==18.1.1
+Markdown==3.7
+MarkupSafe==2.1.5
+matplotlib==3.7.5
+ml-dtypes==0.2.0
+mpmath==1.3.0
+networkx==3.1
+opt-einsum==3.4.0
+packaging==24.2
+pandas==2.0.3
+Pillow==9.5.0
+polars==1.8.2
+portalocker==3.0.0
+protobuf==4.25.8
+psutil==7.2.2
+py-cpuinfo==9.0.0
+python-dateutil==2.9.0.post0
+pytz==2025.1
+requests==2.32.3
+requests-oauthlib==2.0.0
+rsa==4.9.1
+scipy==1.10.1
+seaborn==0.13.2
+sympy==1.13.3
+tensorboard==2.13.0
+tensorboard-data-server==0.7.2
+tensorflow-estimator==2.13.0
+tensorflow-io-gcs-filesystem==0.34.0
+termcolor==2.4.0
+tqdm==4.67.3
+typing-extensions==4.5.0
+tzdata==2025.1
+urllib3==2.2.3
+werkzeug==3.0.6
+wrapt==1.17.3
+zipp==3.20.2

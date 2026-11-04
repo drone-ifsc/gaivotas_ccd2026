@@ -1,0 +1,39 @@
+# The drone's ROS container (Raspberry Pi 5). Equivalent to the command we used before:
+#   docker run -it --privileged --device=/dev/serial0:/dev/serial0 ... -e DISPLAY=$DISPLAY \
+#     -v ~/.Xauthority:/root/.Xauthority -v ~/catkin_ws:/root/catkin_ws --network=host --name ros-container
+#
+# On the drone, in this folder, as falcon (no sudo: with sudo ~ becomes /root):
+#   docker-compose up -d               # creates and starts ros-container (the image must exist or be
+#                                      # built: "docker-compose build", see the Dockerfile)
+#   docker exec -it ros-container bash
+# start_ros.sh does not change: it only runs "docker start ros-container".
+# If a hand-made ros-container already exists, rename it first (docker rename ros-container ros-container-old).
+services:
+  ros:
+    image: gaivotas/ros-noetic-drone:latest
+    build:
+      context: ../..
+      dockerfile: docker/drone/Dockerfile
+    container_name: ros-container
+    # Host network: ROS opens random ports (nodes, services) and MAVROS receives the FCU over UDP —
+    # no NAT and no port list.
+    network_mode: host
+    # privileged: the container sees the host devices (CSI camera/libcamera, serial, USB).
+    # With privileged Docker passes ALL devices that exist when the container starts and ignores
+    # the "devices" list — that is why it does not break when ttyS0/ttyUSB0 do not exist (the Pi 5
+    # has no ttyS0). A USB device plugged in later only shows up after restarting the container
+    # (or with /dev:/dev mounted).
+    privileged: true
+    devices:
+      - /dev/serial0:/dev/serial0
+      - /dev/ttyS0:/dev/ttyS0
+      - /dev/ttyAMA0:/dev/ttyAMA0
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+    environment:
+      - DISPLAY=${DISPLAY:-}
+    volumes:
+      - ~/.Xauthority:/root/.Xauthority
+      - ~/catkin_ws:/root/catkin_ws
+    stdin_open: true   # -i
+    tty: true          # -t

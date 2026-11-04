@@ -1,0 +1,46 @@
+# The laptop's ROS container (x86_64). Same settings as the current hand-made one:
+#   docker run -it --privileged --device=/dev/serial0:/dev/serial0 ... --device=/dev/video0:/dev/video0 \
+#     --device=/dev/snd:/dev/snd -e DISPLAY=$DISPLAY -e PULSE_SERVER=unix:/run/pulse/native \
+#     -v /run/user/1000/pulse/native:/run/pulse/native -v ~/.config/pulse/cookie:/root/.config/pulse/cookie:ro \
+#     -v ~/.Xauthority:/root/.Xauthority -v ~/catkin_ws:/root/catkin_ws -w /root/catkin_ws/src \
+#     --network=host --name ros-container droneifsc/ros-noetic:x86 bash
+#
+# On the laptop, in this folder, as your user (no sudo: with sudo ~ becomes /root):
+#   docker compose up -d --build       # builds the image (first time) and starts ros-container
+#   docker exec -it ros-container bash                                          # master = drone
+#   docker exec -it -e ROS_MASTER_URI=http://127.0.0.1:11311 ros-container bash # simulation
+# If the old ros-container still exists, rename it first (docker rename ros-container ros-container-old).
+services:
+  ros:
+    image: gaivotas/ros-noetic-laptop:latest
+    build:
+      context: ../..
+      dockerfile: docker/laptop/Dockerfile
+    container_name: ros-container
+    # Host network: ROS opens random ports, MAVROS and SITL talk over UDP on 127.0.0.1, and the
+    # windows reach the X server — nothing to map.
+    network_mode: host
+    # privileged: the container sees the host devices (/dev/dri for Gazebo's OpenGL, USB serial,
+    # camera, sound). With privileged Docker passes ALL devices that exist when the container
+    # starts and ignores the "devices" list, so the Raspberry Pi ports below (absent on the laptop)
+    # do not break anything. A USB device plugged in later only shows up after a restart.
+    privileged: true
+    devices:
+      - /dev/serial0:/dev/serial0
+      - /dev/ttyS0:/dev/ttyS0
+      - /dev/ttyAMA0:/dev/ttyAMA0
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/ttyUSB1:/dev/ttyUSB1
+      - /dev/video0:/dev/video0
+      - /dev/snd:/dev/snd
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - PULSE_SERVER=unix:/run/pulse/native
+    volumes:
+      - ~/.Xauthority:/root/.Xauthority                   # X11 (Gazebo, rqt, rviz)
+      - ${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native:/run/pulse/native   # sound
+      - ~/.config/pulse/cookie:/root/.config/pulse/cookie:ro
+      - ~/catkin_ws:/root/catkin_ws
+    working_dir: /root/catkin_ws/src
+    stdin_open: true   # -i
+    tty: true          # -t

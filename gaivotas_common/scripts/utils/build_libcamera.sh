@@ -9,7 +9,7 @@ step() { echo; echo "##### $* ($(date +%T))"; }
 export DEBIAN_FRONTEND=noninteractive
 step apt
 apt-get update -qq
-apt-get install -y -qq --no-install-recommends git ca-certificates python3-pip python3-yaml python3-ply \
+apt-get install -y -qq --no-install-recommends git ca-certificates python3-pip python3-yaml python3-ply python3-jinja2 \
   libyaml-dev libgnutls28-dev libssl-dev pkg-config ninja-build g++ cmake \
   libboost-program-options-dev libexif-dev libjpeg-dev libtiff-dev libpng-dev >/dev/null
 step meson; pip3 install -q 'meson>=1.3,<1.7'; meson --version
