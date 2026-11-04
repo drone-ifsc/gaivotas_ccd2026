@@ -11,7 +11,7 @@
 #   on the laptop (x86, emulating arm64; binfmt has to be registered once per boot):
 #                   docker run --privileged --rm tonistiigi/binfmt --install arm64
 #                   docker build --platform linux/arm64 -f docker/drone/Dockerfile -t gaivotas/ros-noetic-drone .
-#                   docker save gaivotas/ros-noetic-drone | gzip | ssh falcon@192.168.0.105 'gunzip | docker load'
+#                   docker save gaivotas/ros-noetic-drone | gzip | ssh <your user here>@<ip address of the Pi> 'gunzip | docker load'
 FROM ros:noetic-ros-core
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -46,7 +46,7 @@ RUN mkdir -p /root/src && bash /tmp/build_libcamera.sh \
     && rm -rf /root/src /tmp/build_libcamera.sh /var/lib/apt/lists/*
 
 # ROS environment of every shell (ROS_IP from Wi-Fi etc.) and git without "dubious ownership" in
-# the repository mounted from the host (owned by falcon, not root)
+# the repository mounted from the host (owned by the host user, not root)
 COPY docker/drone/ros_env.sh /root/ros_env.sh
 RUN echo 'source /root/ros_env.sh' >> /root/.bashrc \
     && git config --global --add safe.directory '*'

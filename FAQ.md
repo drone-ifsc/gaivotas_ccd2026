@@ -21,9 +21,9 @@ or simply `git pull` on the drone (git restores the bit).
 ### `fatal: detected dubious ownership in repository`
 
 **Why:** the repository on the drone belongs to `root` (it is used from inside the container),
-and git refuses to work in it as user `falcon`.
+and git refuses to work in it as your normal user.
 **Fix:** run git inside the container as root, or allow the path:
-`git config --global --add safe.directory /home/falcon/catkin_ws/src/gaivotas_ccd2026`.
+`git config --global --add safe.directory /home/<your user here>/catkin_ws/src/gaivotas_ccd2026`.
 
 ### `ai_models` / `camera_correction` folders are empty
 

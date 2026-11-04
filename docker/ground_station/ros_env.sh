@@ -1,10 +1,12 @@
 # ROS environment of the laptop's container, sourced at the end of ~/.bashrc (interactive shells
 # only).
 
-# Master: the drone by default. For the simulation open the shell with a local master:
+# Master: the drone when DRONE_IP is set — docker-compose passes it from docker/ground_station/.env
+# (DRONE_IP=<ip address of the Pi>; git ignores .env files), otherwise a local master. For the
+# simulation open the shell with a local master:
 #   docker exec -it -e ROS_MASTER_URI=http://127.0.0.1:11311 ros-container bash
 # (read before setup.bash, which sets localhost when the variable is empty)
-_master="${ROS_MASTER_URI:-http://192.168.0.105:11311}"
+_master="${ROS_MASTER_URI:-${DRONE_IP:+http://$DRONE_IP:11311}}"
 
 source /opt/ros/noetic/setup.bash
 source /usr/share/gazebo/setup.sh
@@ -25,7 +27,7 @@ ROS_IP="$(_get_ip_by_iface "$MY_ROS_IFACE")"
 [ -z "$ROS_IP" ] && ROS_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
 [ -z "$ROS_IP" ] && ROS_IP="127.0.0.1"
 export ROS_IP
-export ROS_MASTER_URI="$_master"
+[ -n "$_master" ] && export ROS_MASTER_URI="$_master"
 unset _master
 
 # kills the Gazebo / MAVROS leftovers of a simulation run (SITL runs on the host: stop it there)

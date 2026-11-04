@@ -9,7 +9,7 @@
 #                     Absoluto, ou relativo ao home remoto (sem "~": o shell local o expande).
 #   [pasta_local]     destino (default: pasta atual)
 #
-# Host default: $DRONE_HOST, ou falcon@192.168.0.105.
+# Host: o [usuario@host:] do caminho, ou $DRONE_HOST (export DRONE_HOST=<usuario>@<ip do Pi>).
 # Download interrompido continua de onde parou ao rodar o mesmo comando de novo.
 #
 # .bag.active (gravação interrompida, sem índice) é reindexado com "rosbag reindex" e salvo
@@ -18,13 +18,13 @@
 #
 # Exemplos:
 #   fetch_rosbag.sh catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags
-#   fetch_rosbag.sh /home/falcon/voo.bag ~/bags
-#   fetch_rosbag.sh root@10.0.0.5:/data/a11_2026-10-09-11-30-00.bag
-#   ./fetch_rosbag.sh /home/falcon/catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags ~/catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags
+#   fetch_rosbag.sh /home/<usuario>/voo.bag ~/bags
+#   fetch_rosbag.sh <usuario>@<ip do Pi>:/data/a11_2026-10-09-11-30-00.bag
+#   ./fetch_rosbag.sh /home/<usuario>/catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags ~/catkin_ws/src/gaivotas_ccd2026/a10_gaivotas_ccd2026/rosbags
 
 set -euo pipefail
 
-DRONE_HOST="${DRONE_HOST:-falcon@192.168.0.105}"
+DRONE_HOST="${DRONE_HOST:-}"
 ROS_IMAGE="${ROS_IMAGE:-droneifsc/ros-noetic:x86}"
 # BatchMode: só chave, nunca pede senha (falha na hora se a chave não for aceita).
 SFTP_OPTS=(-o BatchMode=yes -o ConnectTimeout=10)
@@ -41,6 +41,11 @@ local_dir="${2:-.}"
 if [[ "$remote" =~ ^([^/:]+):(.+)$ ]]; then
     DRONE_HOST="${BASH_REMATCH[1]}"
     remote="${BASH_REMATCH[2]}"
+fi
+# The drone's address is not kept in the repository: it comes from the path or from DRONE_HOST.
+if [ -z "$DRONE_HOST" ]; then
+    echo "Host do drone não definido: use <usuario>@<ip do Pi>:<caminho> ou export DRONE_HOST=<usuario>@<ip do Pi>" >&2
+    exit 1
 fi
 remote="${remote#\~/}"
 

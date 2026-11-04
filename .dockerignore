@@ -2,4 +2,5 @@
 # this Docker would send the whole repository (models, rosbags) on every build.
 *
 !docker/
+docker/**/.env
 !gaivotas_common/scripts/utils/build_libcamera.sh

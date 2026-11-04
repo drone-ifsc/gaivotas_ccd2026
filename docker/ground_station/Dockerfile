@@ -9,8 +9,8 @@
 #
 # Build — the context is the repository root:
 #   cd ~/catkin_ws/src/gaivotas_ccd2026
-#   docker build -f docker/laptop/Dockerfile -t gaivotas/ros-noetic-laptop .
-#   (or, in docker/laptop: docker compose build)
+#   docker build -f docker/ground_station/Dockerfile -t gaivotas/ros-noetic-laptop .
+#   (or, in docker/ground_station: docker compose build)
 FROM ros:noetic-ros-core
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -48,12 +48,12 @@ RUN git clone -q https://github.com/khancyr/ardupilot_gazebo /root/ardupilot_gaz
 
 # Detection and model-export Python packages, in the versions of the current container — see
 # requirements.txt
-COPY docker/laptop/requirements.txt /tmp/requirements.txt
+COPY docker/ground_station/requirements.txt /tmp/requirements.txt
 RUN pip3 install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt
 
 # ROS environment of every shell (ROS_IP, master, Gazebo paths) and git without "dubious
 # ownership" in the repository mounted from the host (owned by the host user, not root)
-COPY docker/laptop/ros_env.sh /root/ros_env.sh
+COPY docker/ground_station/ros_env.sh /root/ros_env.sh
 RUN echo 'source /root/ros_env.sh' >> /root/.bashrc \
     && git config --global --add safe.directory '*'
 

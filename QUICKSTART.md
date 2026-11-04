@@ -11,7 +11,7 @@ built (`catkin build` inside the ROS container), and libcamera is built in the c
 1. Connect to the drone (Raspberry Pi) from the laptop:
 
    ```bash
-   ssh <your user here>@192.168.0.105
+   ssh <your user here>@<ip address of the Pi>
    ```
 
 2. Start everything with the helper script:

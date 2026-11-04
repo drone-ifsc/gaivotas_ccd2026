@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import cv2
 from sensor_msgs.msg import CompressedImage, Image
 from sensor_msgs.msg import CameraInfo
@@ -16,7 +17,9 @@ class CameraHandler:
         self.quality      = rospy.get_param("~quality", 50)
         self.camera_info_topic = rospy.get_param('~camera_info_topic', '/camera/camera_info')
         self.frame_id = rospy.get_param('~frame_id', 'notebook_camera')
-        self.ost_file = rospy.get_param('~ost_file', '/home/yabrik/catkin_ws/src/gauge_reader/camera_correction/fisheye_camera/ost.yaml')  # Path to the camera calibration file
+        # Path to the camera calibration file; the default is the 1280x720 one of the camera_correction submodule
+        default_ost = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'camera_correction/imx219/ost.yaml')
+        self.ost_file = rospy.get_param('~ost_file', default_ost)
         
         # Initialize camera capture
         rospy.loginfo("Initializing camera...")

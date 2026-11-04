@@ -2,7 +2,7 @@
 #   docker run -it --privileged --device=/dev/serial0:/dev/serial0 ... -e DISPLAY=$DISPLAY \
 #     -v ~/.Xauthority:/root/.Xauthority -v ~/catkin_ws:/root/catkin_ws --network=host --name ros-container
 #
-# On the drone, in this folder, as falcon (no sudo: with sudo ~ becomes /root):
+# On the drone, in this folder, as your user (no sudo: with sudo ~ becomes /root):
 #   docker-compose up -d               # creates and starts ros-container (the image must exist or be
 #                                      # built: "docker-compose build", see the Dockerfile)
 #   docker exec -it ros-container bash

@@ -17,11 +17,11 @@ repository is cloned into and built in the container's catkin workspace `/root/c
 - **Laptop** (ground station and simulation; ours runs Ubuntu 24.04): image
   `droneifsc/ros-noetic:x86` (ROS Noetic + Gazebo 11), started with host networking,
   `--privileged` and X11 access for the windows; the same image and container, built natively
-  for x86, are described in [docker/laptop](docker/laptop/). The laptop needs the container for
+  for x86, are described in [docker/ground_station](docker/ground_station/). The laptop needs the container for
   anything ROS:
   - talking to the drone's ROS over Wi-Fi — `rostopic`, `rqt_image_view`,
     `gaivotas_common/scripts/utils/view_topic.py` (in the container
-    `ROS_MASTER_URI=http://192.168.0.105:11311`, the drone's master);
+    `ROS_MASTER_URI=http://<ip address of the Pi>:11311`, the drone's master);
   - rosbags — `rosbag play` / `reindex`, `a10_gaivotas_ccd2026/launch/post_analyzer.launch`
     (`utils/fetch_rosbag.sh` starts the image by itself for the reindex);
   - the simulation — Gazebo + MAVROS (with `ROS_MASTER_URI=http://127.0.0.1:11311`, a local

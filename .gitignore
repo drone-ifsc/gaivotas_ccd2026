@@ -1,5 +1,4 @@
 # segredos / ambiente
-.env
 *.token
 
 # python

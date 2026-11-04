@@ -7,15 +7,17 @@
 #
 # On the laptop, in this folder, as your user (no sudo: with sudo ~ becomes /root):
 #   docker compose up -d --build       # builds the image (first time) and starts ros-container
-#   docker exec -it ros-container bash                                          # master = drone
+#   docker exec -it ros-container bash                                          # master = drone (*)
 #   docker exec -it -e ROS_MASTER_URI=http://127.0.0.1:11311 ros-container bash # simulation
+# (*) the drone's address is not in git: put DRONE_IP=<ip address of the Pi> into a .env file next
+#     to this one (git ignores it; docker compose reads it by itself). Without it the master is local.
 # If the old ros-container still exists, rename it first (docker rename ros-container ros-container-old).
 services:
   ros:
     image: gaivotas/ros-noetic-laptop:latest
     build:
       context: ../..
-      dockerfile: docker/laptop/Dockerfile
+      dockerfile: docker/ground_station/Dockerfile
     container_name: ros-container
     # Host network: ROS opens random ports, MAVROS and SITL talk over UDP on 127.0.0.1, and the
     # windows reach the X server — nothing to map.
@@ -36,6 +38,7 @@ services:
     environment:
       - DISPLAY=${DISPLAY:-:0}
       - PULSE_SERVER=unix:/run/pulse/native
+      - DRONE_IP=${DRONE_IP:-}
     volumes:
       - ~/.Xauthority:/root/.Xauthority                   # X11 (Gazebo, rqt, rviz)
       - ${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native:/run/pulse/native   # sound
