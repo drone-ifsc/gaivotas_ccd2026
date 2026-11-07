@@ -18,7 +18,8 @@ source /usr/share/gazebo/setup.sh
 export GAZEBO_MODEL_PATH="$GAZEBO_MODEL_PATH:/root/ardupilot_gazebo/models:/root/catkin_ws/src/droneifsc/models"
 export DISABLE_ROS1_EOL_WARNINGS=1
 
-# ROS_IP = the laptop's Wi-Fi address: the drone's nodes connect back to it
+# ROS_IP = the laptop's Wi-Fi address: the drone's nodes connect back to it. MY_ROS_IFACE comes
+# from docker-compose.yml (overridable in .env) — see the warning there about other interfaces.
 MY_ROS_IFACE="${MY_ROS_IFACE:-wlp1s0}"
 _get_ip_by_iface() {
   ip -4 addr show "$1" 2>/dev/null | awk '/inet /{print $2}' | cut -d/ -f1 | head -n1

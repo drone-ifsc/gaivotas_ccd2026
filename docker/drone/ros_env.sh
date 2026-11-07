@@ -6,6 +6,8 @@ source /opt/ros/noetic/setup.bash
 
 # ROS_IP = the Wi-Fi address: the laptop reaches the drone's master through it. Never the FCU link
 # (192.168.144.x) nor docker0 (172.17.x). At boot wlan0 may come up late: wait up to 10 s.
+# MY_ROS_IFACE comes from docker-compose.yml (overridable in .env) — see the warning there about
+# connecting over another interface.
 MY_ROS_IFACE="${MY_ROS_IFACE:-wlan0}"
 _get_ip_by_iface() {
   ip -4 addr show "$1" 2>/dev/null | awk '/inet /{print $2}' | cut -d/ -f1 | head -n1

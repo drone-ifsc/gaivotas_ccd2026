@@ -32,6 +32,14 @@ services:
       - /dev/ttyUSB1:/dev/ttyUSB1
     environment:
       - DISPLAY=${DISPLAY:-}
+      # Interface whose address becomes ROS_IP (ros_env.sh): the laptop reaches the drone's nodes
+      # through it. Default wlan0 = the Pi's Wi-Fi, which is how the laptop normally connects.
+      # WARNING: if the laptop reaches the Pi over another interface (Ethernet cable, USB
+      # tethering, a USB Wi-Fi adapter), ROS_IP is still the wlan0 address (or a guess when wlan0
+      # is down) and ROS breaks: the laptop sees the topic names but gets no data. Then put
+      # MY_ROS_IFACE=<interface in use> ("ip -br addr" on the Pi) into a .env file next to this
+      # one and run "docker compose up -d" (recreates the container with the new value).
+      - MY_ROS_IFACE=${MY_ROS_IFACE:-wlan0}
     volumes:
       - ~/.Xauthority:/root/.Xauthority
       - ~/catkin_ws:/root/catkin_ws

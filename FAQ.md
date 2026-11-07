@@ -1,4 +1,4 @@
-# FAQ — known problems and how to fix them
+# FAQ — known problems you may encounter and how to fix them
 
 Problems we actually ran into with this repository, the drone and the simulation.
 Each entry: what you see, why it happens, what to do.
@@ -29,8 +29,26 @@ and git refuses to work in it as your normal user.
 
 **Why:** the repository was cloned without its submodules.
 **Fix:** `git submodule update --init --recursive` (or clone with `--recurse-submodules`).
-The submodule URLs are relative, so they use the same protocol as the main repository — clone
-it over SSH on the drone, which has only an SSH key for GitHub.
+The submodule URLs in `.gitmodules` are absolute HTTPS addresses
+(`https://github.com/drone-ifsc/…`) and the repositories are public, so this works however the
+main repository was cloned, without a GitHub account or SSH key.
+
+### An old clone asks for an SSH key (`Permission denied (publickey)`)
+
+**Why:** the repository and its submodules used to be cloned over SSH (`git@github.com:…`).
+A clone made back then keeps those addresses in its own `.git/config`, even after `git pull`
+brings the new HTTPS ones in `.gitmodules`.
+**Fix:** switch the existing clone to HTTPS once, in the repository:
+
+```bash
+git remote set-url origin https://github.com/drone-ifsc/gaivotas_ccd2026.git
+git pull
+git submodule sync --recursive               # copies the URLs from .gitmodules into .git/config
+git submodule update --init --recursive
+```
+
+Pushing over HTTPS asks for your GitHub user name and a personal access token instead of the
+password (GitHub → *Settings* → *Developer settings* → *Personal access tokens*).
 
 ### `git push` rejected because of a large rosbag
 
@@ -41,10 +59,12 @@ commits) before pushing. Recorded bags belong in `rosbags/`, which is ignored.
 
 ### `git pull` / `git fetch` hangs
 
-**Why:** in our case the network path to GitHub was dropping connections for a while; without
-a timeout SSH waits about two minutes before giving up.
-**Fix:** retry later, or let SSH fail fast and retry by itself — in `~/.ssh/config` under
-`Host github.com`: `ConnectTimeout 5` and `ConnectionAttempts 6`.
+**Why:** in our case the network path to GitHub was dropping connections for a while, and git
+waits a long time before giving up.
+**Fix:** retry later. To make a stalled download fail instead of hanging:
+`git config --global http.lowSpeedLimit 1000` and `git config --global http.lowSpeedTime 20`
+(gives up below 1 KB/s for 20 s). For a remote reached over SSH, the same is done in
+`~/.ssh/config` under its `Host`: `ConnectTimeout 5` and `ConnectionAttempts 6`.
 
 ## Flight controller and MAVROS
 

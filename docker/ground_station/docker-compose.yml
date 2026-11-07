@@ -11,6 +11,7 @@
 #   docker exec -it -e ROS_MASTER_URI=http://127.0.0.1:11311 ros-container bash # simulation
 # (*) the drone's address is not in git: put DRONE_IP=<ip address of the Pi> into a .env file next
 #     to this one (git ignores it; docker compose reads it by itself). Without it the master is local.
+#     The same file takes MY_ROS_IFACE when the laptop's Wi-Fi is not wlp1s0 (see environment below).
 # If the old ros-container still exists, rename it first (docker rename ros-container ros-container-old).
 services:
   ros:
@@ -39,6 +40,14 @@ services:
       - DISPLAY=${DISPLAY:-:0}
       - PULSE_SERVER=unix:/run/pulse/native
       - DRONE_IP=${DRONE_IP:-}
+      # Interface whose address becomes ROS_IP (ros_env.sh): the drone's nodes connect back to the
+      # laptop through it. Default wlp1s0 = our laptop's Wi-Fi; on another laptop it can be wlo1,
+      # wlp2s0, … ("ip -br addr") — then put MY_ROS_IFACE=<interface> into .env next to this file.
+      # WARNING: when the laptop is connected over another interface (Ethernet cable, USB
+      # tethering, another Wi-Fi adapter), ROS_IP falls back to a guess that may be wrong (e.g.
+      # docker0's 172.17.0.1): the drone's topic names show up but no data arrives. Set
+      # MY_ROS_IFACE to the interface in use and run "docker compose up -d".
+      - MY_ROS_IFACE=${MY_ROS_IFACE:-wlp1s0}
     volumes:
       - ~/.Xauthority:/root/.Xauthority                   # X11 (Gazebo, rqt, rviz)
       - ${XDG_RUNTIME_DIR:-/run/user/1000}/pulse/native:/run/pulse/native   # sound

@@ -62,6 +62,11 @@ driver runs on the drone, inside the ROS container, and is started separately:
 `rosrun gaivotas_common camera_driver.py` (needs libcamera built in the container, see
 the script's docstring).
 
+## Installation
+
+Read the [INSTALLATION](INSTALLATION.md) to understand how to setup docker container, install ROS inside 
+and what to do with this repo to make it work
+
 ## Connecting to the flight controller (MAVROS)
 
 The flight controller (FCU) runs ArduPilot and speaks **MAVLink**. ROS does not talk MAVLink
@@ -197,14 +202,20 @@ of Gazebo simulations for ArduPilot drones (worlds, models, launch files).
 
 ## Bootstrap
 
-Inside the ROS container, the same on the drone and on the laptop (ROS is only there):
+The same on the drone and on the laptop; the full first-time setup (Docker, image, container)
+is in [INSTALLATION](INSTALLATION.md). Clone on the host — `~/catkin_ws` is the folder the
+container sees as `/root/catkin_ws`, and the image is built from this repository — then build
+inside the ROS container (ROS is only there):
 
 ```bash
-cd ~/catkin_ws/src
-git clone --recurse-submodules git@github.com:drone-ifsc/gaivotas_ccd2026.git
-cd ~/catkin_ws && catkin build
-# or:  git clone … && git submodule update --init --recursive
+# host
+mkdir -p ~/catkin_ws/src && cd ~/catkin_ws/src
+git clone --recurse-submodules https://github.com/drone-ifsc/gaivotas_ccd2026.git
 # the --recurse-submodules is important because it pulls the repo with camera calibrations and ai models used for identifying the bases
+# (forgot it?  git submodule update --init --recursive)
+
+# container (docker exec -it ros-container bash)
+cd ~/catkin_ws && catkin build
 ```
 
 In case of any problems - feel free to open the issue here on Github or write on my email - iaroslav.p@aluno.ifsc.edu.br

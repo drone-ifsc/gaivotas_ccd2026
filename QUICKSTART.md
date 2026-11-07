@@ -5,7 +5,7 @@ works is in the [main README](README.md); camera, calibration and AI models are 
 [gaivotas_common](gaivotas_common/README.md); known problems are in the [FAQ](FAQ.md).
 
 Before the first flight on a new machine: the repository is cloned **with submodules** and
-built (`catkin build` inside the ROS container), and libcamera is built in the container
+built (`catkin build` inside the ROS container, how to install it see [here](INSTALLATION.md)), and libcamera is built in the container
 (see [Camera in gaivotas_common](gaivotas_common/README.md#camera)).
 
 1. Connect to the drone (Raspberry Pi) from the laptop:
@@ -26,14 +26,14 @@ built (`catkin build` inside the ROS container), and libcamera is built in the c
    |---|---|
    | top left | starts the ROS container (`docker start ros-container`) and `htop` |
    | top right | the camera driver (`rosrun gaivotas_common camera_driver.py`) |
-   | bottom left | a free shell inside the container — for you |
-   | bottom right | `roscore` |
+   | bottom left | a free shell inside the container, in `~/catkin_ws/src` — for the launch (step 3) |
+   | bottom right | another free shell inside the container — for the mission script (step 4) |
 
    tmux basics: `Ctrl+b` then an arrow key moves between panes; `Ctrl+b` then `d` leaves the
    session running in the background; `tmux attach -t ros` comes back to it;
    `tmux kill-session -t ros` closes everything.
 
-3. In the free pane, start the mission nodes (MAVROS, `stream_keeper`, landing-base
+3. In the bottom left pane, start the mission nodes (MAVROS, `stream_keeper`, landing-base
    detection, precision landing and the mission-specific nodes), for example for A4:
 
    ```bash
@@ -44,8 +44,15 @@ built (`catkin build` inside the ROS container), and libcamera is built in the c
    DEFINIDA` error means the flight controller has no position yet — usually no GPS fix
    (see the [FAQ](FAQ.md)).
 
-4. In another terminal inside the container (it must be a real terminal: the pause key reads
-   the keyboard), start the mission script:
+   The script does not start `roscore`: `roslaunch` starts the ROS master by itself when none
+   is running. Until then the camera driver prints `Unable to register with master node` — it
+   is waiting for the master and connects as soon as the launch starts it. The master stops
+   together with this launch, so after Ctrl+C on it restart the camera driver as well (a node
+   does not register again with a new master), or start `roscore` in a pane of your own before
+   the launch to keep the master between launches.
+
+4. In the bottom right pane (it must be a real terminal: the pause key reads the keyboard),
+   start the mission script:
 
    ```bash
    rosrun a4_gaivotas_ccd2026 mission.py

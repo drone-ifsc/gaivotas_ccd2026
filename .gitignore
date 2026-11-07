@@ -1,5 +1,6 @@
 # segredos / ambiente
 *.token
+.env
 
 # python
 __pycache__/
